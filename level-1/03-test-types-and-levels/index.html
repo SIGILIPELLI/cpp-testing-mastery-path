@@ -1,0 +1,3025 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A structured, module-wise software testing program for C and C++ — manual QA fundamentals through automated unit testing, sanitizers and CI, entry level to master level.">
+      
+      
+      
+        <link rel="canonical" href="https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/03-test-types-and-levels/">
+      
+      
+        <link rel="prev" href="../02-test-case-design-documentation/">
+      
+      
+        <link rel="next" href="../04-defect-lifecycle-bug-reporting/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>03 · Test Types & Levels - C/C++ Testing Mastery Path</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="C/C++ Testing Mastery Path">
+  <meta property="og:title" content="03 · Test Types & Levels">
+  <meta property="og:description" content="A structured, module-wise software testing program for C and C++ — manual QA fundamentals, unit testing, sanitizers and CI automation, entry level to master level.">
+  <meta property="og:url" content="https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/03-test-types-and-levels/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="03 · Test Types & Levels">
+  <meta name="twitter:description" content="A structured, module-wise software testing program for C and C++ — manual QA fundamentals, unit testing, sanitizers and CI automation, entry level to master level.">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9440969811959397"
+     crossorigin="anonymous"></script>
+
+  <!-- Mastery Path premium gate: homepage + Level 1 stay free and crawlable;
+       Levels 2-4 require a signed-in account. -->
+  <script>
+    (function () {
+      if (!/\/level-[234]\//.test(window.location.pathname)) return;
+
+      var root = document.documentElement;
+      root.style.visibility = "hidden";
+
+      function reveal() { root.style.visibility = "visible"; }
+      function toLogin() {
+        window.location.replace(
+          "/login.html?redirect=" + encodeURIComponent(window.location.href)
+        );
+      }
+
+      var settled = false;
+      window.addEventListener("mastery-auth-ready", function (e) {
+        if (settled) return;
+        settled = true;
+        if (e.detail && e.detail.user) { reveal(); } else { toLogin(); }
+      }, { once: true });
+
+      // Fail closed: if Firebase never loads (blocked/offline), send to login
+      // rather than leaving a blank page or silently exposing the content.
+      setTimeout(function () {
+        if (!settled) { settled = true; toLogin(); }
+      }, 8000);
+    })();
+  </script>
+  <script type="module" src="/mastery-auth.js"></script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#03-test-types-levels" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="C/C++ Testing Mastery Path" class="md-header__button md-logo" aria-label="C/C++ Testing Mastery Path" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            C/C++ Testing Mastery Path
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              03 · Test Types & Levels
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SIGILIPELLI/cpp-testing-mastery-path" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cpp-testing-mastery-path
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../privacy/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Privacy Policy
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 1 · Entry
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../level-2/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 2 · Intermediate
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../level-3/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 3 · Advanced
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../level-4/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 4 · Master
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="C/C++ Testing Mastery Path" class="md-nav__button md-logo" aria-label="C/C++ Testing Mastery Path" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    C/C++ Testing Mastery Path
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SIGILIPELLI/cpp-testing-mastery-path" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cpp-testing-mastery-path
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../privacy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 1 · Entry
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 1 · Entry
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-what-is-software-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · What Is Software Testing?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-test-case-design-documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Test Case Design & Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Test Types & Levels
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Test Types & Levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-four-test-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The four test levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. The four test levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acceptance-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-test-pyramid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The test pyramid
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-functional-vs-non-functional-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Functional vs. non-functional testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-testing-by-knowledge-of-internals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Testing by knowledge of internals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-test-types-by-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test types by purpose
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Test types by purpose">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#smoke-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smoke testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sanity-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sanity testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regression-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-testing-confirmation-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-testing (confirmation testing)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exploratory-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exploratory testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ad-hoc-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ad-hoc testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#others-worth-knowing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Others worth knowing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-putting-it-together-a-cc-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Putting it together — a C/C++ example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-defect-lifecycle-bug-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Defect Lifecycle & Bug Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-manual-testing-in-practice/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Manual Testing in Practice
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-toolchain-setup-for-testers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Toolchain Setup for Testers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-unit-testing-googletest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Unit Testing with GoogleTest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-unit-testing-c-unity-cmocka/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Unit Testing C with Unity/CMocka
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-test-builds-running-suites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Test Builds & Running Suites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-project-test-plan-and-suite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Project — Test Plan & GoogleTest Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../level-2/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 2 · Intermediate
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 2 · Intermediate
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/01-googletest-advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · GoogleTest Advanced
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/02-mocking-with-googlemock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Mocking with GoogleMock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/03-cmocka-advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Testing C Code with CMocka Advanced
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/04-memory-error-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Memory Error Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/05-undefined-behavior-ubsan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Undefined Behavior & UBSan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/06-code-coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Code Coverage (gcov/lcov)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/07-test-doubles-hardware-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Test Doubles for Hardware/OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/08-cmake-ctest-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · CMake/CTest Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/09-static-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Static Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/10-project-instrumented-suite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Project — Instrumented Test Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../level-3/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 3 · Advanced
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 3 · Advanced
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/01-integration-testing-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Integration Testing Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/02-embedded-target-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Embedded Target Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/03-hardware-in-the-loop-basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Hardware-in-the-Loop Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/04-fuzz-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Fuzz Testing (libFuzzer, AFL)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/05-property-based-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Property-Based Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/06-ci-cd-for-test-suites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · CI/CD for C/C++ Test Suites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/07-performance-benchmark-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance & Benchmark Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/08-concurrency-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Concurrency Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/09-legacy-code-under-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Legacy Code Under Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/10-project-ci-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Project — CI Pipeline with Sanitizers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../level-4/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 4 · Master
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 4 · Master
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/01-test-architecture-large-codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Test Architecture for Large Codebases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/02-safety-critical-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Safety-Critical Testing Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/03-requirements-based-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Requirements-Based Testing & Traceability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/04-formal-methods-static-verification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Formal Methods & Static Verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/05-certification-evidence-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Certification Evidence & Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/06-cross-compilation-test-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Cross-Compilation Test Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/07-simulation-emulation-qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Simulation & Emulation (QEMU)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/08-quality-gates-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Quality Gates & Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/09-in-house-test-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Building an In-House Test Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/10-capstone-project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Capstone Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-four-test-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The four test levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. The four test levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unit testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#integration-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Integration testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#system-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acceptance-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-test-pyramid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The test pyramid
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-functional-vs-non-functional-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Functional vs. non-functional testing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-testing-by-knowledge-of-internals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Testing by knowledge of internals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-test-types-by-purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Test types by purpose
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Test types by purpose">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#smoke-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smoke testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sanity-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sanity testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regression-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regression testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-testing-confirmation-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-testing (confirmation testing)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exploratory-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exploratory testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ad-hoc-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ad-hoc testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#others-worth-knowing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Others worth knowing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-putting-it-together-a-cc-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Putting it together — a C/C++ example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="03-test-types-levels">03 · Test Types &amp; Levels<a class="headerlink" href="#03-test-types-levels" title="Permanent link">&para;</a></h1>
+<p>"We tested it" is not a useful sentence. <em>Which</em> tests, at <em>which</em> level, of
+<em>which</em> type? This module gives you the vocabulary to say precisely what was
+tested and — more usefully — to notice what wasn't.</p>
+<p>Two independent axes organize all testing:</p>
+<ul>
+<li><strong>Levels</strong> — <em>how much of the system</em> is under test (unit → integration →
+  system → acceptance)</li>
+<li><strong>Types</strong> — <em>what property</em> you are checking (functional vs. non-functional,
+  and within that: smoke, regression, performance, security, …)</li>
+</ul>
+<p>They are orthogonal. You can have a functional unit test and a performance unit
+test; a smoke system test and a regression system test.</p>
+<h2 id="1-the-four-test-levels">1. The four test levels<a class="headerlink" href="#1-the-four-test-levels" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Scope</th>
+<th>Who usually writes it</th>
+<th>Typical C/C++ tooling</th>
+<th>Runtime</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Unit</strong></td>
+<td>One function or class, isolated</td>
+<td>Developer</td>
+<td>GoogleTest, CMocka, Unity</td>
+<td>Milliseconds</td>
+</tr>
+<tr>
+<td><strong>Integration</strong></td>
+<td>Two or more components together</td>
+<td>Developer / tester</td>
+<td>GoogleTest + real or fake collaborators</td>
+<td>Seconds</td>
+</tr>
+<tr>
+<td><strong>System</strong></td>
+<td>The whole built product, end to end</td>
+<td>Tester</td>
+<td>Scripts, CLI drivers, hardware rigs</td>
+<td>Minutes to hours</td>
+</tr>
+<tr>
+<td><strong>Acceptance</strong></td>
+<td>The product against user/customer needs</td>
+<td>Customer, product owner, certification body</td>
+<td>Scripted manual runs, formal protocols</td>
+<td>Days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="unit-testing">Unit testing<a class="headerlink" href="#unit-testing" title="Permanent link">&para;</a></h3>
+<p>A <strong>unit test</strong> exercises the smallest independently testable piece of code —
+in C, usually one function; in C++, one function or one class — with its
+dependencies replaced or absent.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Unit test: only Calculator::divide is under test. Nothing else runs.</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">TEST</span><span class="p">(</span><span class="n">CalculatorTest</span><span class="p">,</span><span class="w"> </span><span class="n">DivideTruncatesTowardZero</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="n">Calculator</span><span class="w"> </span><span class="n">c</span><span class="p">;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="n">EXPECT_EQ</span><span class="p">(</span><span class="n">c</span><span class="p">.</span><span class="n">divide</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">);</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">}</span>
+</code></pre></div>
+<p>Properties that define a unit test:</p>
+<ul>
+<li><strong>Fast</strong> — a suite of thousands runs in seconds</li>
+<li><strong>Isolated</strong> — no filesystem, no network, no hardware, no other components</li>
+<li><strong>Deterministic</strong> — same result every run, in any order</li>
+<li><strong>Precise</strong> — when it fails, you know exactly which function is broken</li>
+</ul>
+<p>If a "unit test" opens a socket or reads a file, it is an integration test that
+has been mislabelled — and it will eventually be slow and flaky.</p>
+<h3 id="integration-testing">Integration testing<a class="headerlink" href="#integration-testing" title="Permanent link">&para;</a></h3>
+<p>An <strong>integration test</strong> checks that components work <em>together</em> — that the
+interfaces between them are compatible in reality, not just on paper. Most real
+bugs in mature systems live at these seams: mismatched units (metres vs. feet),
+mismatched error conventions (0-on-success vs. 0-on-failure), lifetime and
+ownership mistakes, byte order, struct padding.</p>
+<p>Two classic strategies:</p>
+<table>
+<thead>
+<tr>
+<th>Strategy</th>
+<th>How it works</th>
+<th>Trade-off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Big bang</strong></td>
+<td>Assemble everything, test the whole thing</td>
+<td>Cheap to set up; when it fails you have no idea where</td>
+</tr>
+<tr>
+<td><strong>Incremental</strong> (top-down, bottom-up, or sandwich)</td>
+<td>Add one component at a time</td>
+<td>More scaffolding (stubs/drivers) but failures are localized</td>
+</tr>
+</tbody>
+</table>
+<p>Incremental integration needs two kinds of scaffolding, and the words are worth
+knowing precisely:</p>
+<ul>
+<li>A <strong>stub</strong> stands in for a component <em>below</em> the one under test (the thing it
+  calls). Testing a display module top-down, you stub the sensor driver.</li>
+<li>A <strong>driver</strong> stands in for a component <em>above</em> (the thing that calls it).
+  Testing a sensor driver bottom-up, you write a driver that calls into it.</li>
+</ul>
+<p>In embedded C/C++ these are constant companions, because the "component below"
+is frequently a physical peripheral that does not exist on your desk. Level 2
+Module 7 covers test doubles for hardware in depth.</p>
+<h3 id="system-testing">System testing<a class="headerlink" href="#system-testing" title="Permanent link">&para;</a></h3>
+<p><strong>System testing</strong> exercises the complete, integrated product in an environment
+as close to production as you can manage: the real binary, real configuration,
+real (or realistically simulated) hardware. Nothing is stubbed if it can be
+avoided.</p>
+<p>For a C/C++ command-line tool, a system test looks like running the actual
+executable and checking its behaviour:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># System test: the real binary, real files, checking real observable output</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./build/tempconv<span class="w"> </span>--input<span class="w"> </span>samples/valid.csv<span class="w"> </span>--output<span class="w"> </span>/tmp/out.csv
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;exit code: </span><span class="nv">$?</span><span class="s2">&quot;</span><span class="w">            </span><span class="c1"># expect 0</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>diff<span class="w"> </span>/tmp/out.csv<span class="w"> </span>expected/valid_out.csv<span class="w">   </span><span class="c1"># expect no differences</span>
+</code></pre></div>
+<p>For embedded firmware, a system test means the real image flashed onto the real
+board with the real sensors attached — which is why Level 3 has a whole module
+on hardware-in-the-loop.</p>
+<h3 id="acceptance-testing">Acceptance testing<a class="headerlink" href="#acceptance-testing" title="Permanent link">&para;</a></h3>
+<p><strong>Acceptance testing</strong> answers "will the customer accept this?" — validation
+rather than verification (see Module 1). Varieties:</p>
+<ul>
+<li><strong>UAT (User Acceptance Testing)</strong> — real users, real workflows</li>
+<li><strong>Contract acceptance</strong> — the criteria written into the purchase contract</li>
+<li><strong>Regulatory acceptance</strong> — a certification body reviews evidence against a
+  standard (DO-178C, IEC 62304, ISO 26262)</li>
+<li><strong>Alpha / beta</strong> — internal then external field testing</li>
+</ul>
+<p>In safety-critical C/C++ work, this level generates the heaviest paperwork of
+the project, and the traceability you built in Module 2 is what makes it
+survivable.</p>
+<h3 id="the-test-pyramid">The test pyramid<a class="headerlink" href="#the-test-pyramid" title="Permanent link">&para;</a></h3>
+<p>The standard guidance on how many of each to have:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>        /\          Acceptance   — few, slow, expensive, high confidence
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>       /  \         System       — some
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>      /    \        Integration  — more
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>     /______\       Unit         — many, fast, cheap, precise
+</code></pre></div>
+<p>Aim for a broad base of fast unit tests and a narrow tip of slow end-to-end
+ones. The failure mode when this inverts — few unit tests, mostly slow system
+tests — is called the <em>ice cream cone</em>: the suite takes hours, is flaky, and
+when it fails nobody can tell which of 300 functions is at fault.</p>
+<div class="admonition note">
+<p class="admonition-title">Embedded projects deform the pyramid — deliberately</p>
+<p>In embedded C/C++ you often cannot unit-test hardware-touching code on the
+target cheaply. The standard answer is <strong>host-based unit testing</strong>: compile
+the <em>logic</em> for your PC with fake hardware layers underneath, run thousands
+of fast unit tests there, and reserve the physical target for a much smaller
+number of integration and system tests. That keeps the pyramid shape while
+respecting the hardware. Level 3 Module 2 covers on-target vs. host testing.</p>
+</div>
+<h2 id="2-functional-vs-non-functional-testing">2. Functional vs. non-functional testing<a class="headerlink" href="#2-functional-vs-non-functional-testing" title="Permanent link">&para;</a></h2>
+<p><strong>Functional testing</strong> asks: <em>does it do the right thing?</em> — inputs produce the
+specified outputs, error paths behave as specified.</p>
+<p><strong>Non-functional testing</strong> asks: <em>how well does it do it?</em> — the qualities, not
+the features. These are where C and C++ projects most often get chosen as the
+implementation language in the first place, so they matter disproportionately
+here.</p>
+<table>
+<thead>
+<tr>
+<th>Non-functional type</th>
+<th>Question</th>
+<th>C/C++ tooling</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Performance</strong></td>
+<td>How fast? What throughput?</td>
+<td>Google Benchmark, <code>perf</code> (Level 3 M7)</td>
+</tr>
+<tr>
+<td><strong>Load / stress</strong></td>
+<td>What happens under sustained or excessive demand?</td>
+<td>Custom drivers, soak scripts</td>
+</tr>
+<tr>
+<td><strong>Memory / resource</strong></td>
+<td>Does it leak? Does it fit in 64 KB of RAM?</td>
+<td>Valgrind, ASan, map file analysis (Level 2 M4)</td>
+</tr>
+<tr>
+<td><strong>Reliability / soak</strong></td>
+<td>Does it survive 72 hours of continuous running?</td>
+<td>Long-run harnesses; catches slow leaks</td>
+</tr>
+<tr>
+<td><strong>Security</strong></td>
+<td>Can input corrupt memory or escalate privilege?</td>
+<td>Fuzzing, ASan, static analysis (Level 3 M4)</td>
+</tr>
+<tr>
+<td><strong>Portability</strong></td>
+<td>Does it behave the same on ARM as on x86-64?</td>
+<td>Cross-compilation matrices (Level 4 M6)</td>
+</tr>
+<tr>
+<td><strong>Maintainability</strong></td>
+<td>Can the team safely change it?</td>
+<td>Static analysis, complexity metrics, coverage</td>
+</tr>
+<tr>
+<td><strong>Usability</strong></td>
+<td>Can a person use it?</td>
+<td>Manual, human judgement</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Non-functional failures are the ones that reach production</p>
+<p>A functional bug usually shows up in the first hour of testing. A memory
+leak of 40 bytes per request shows up after nine days of uptime, in the
+field, on a customer's device. In C/C++ specifically, <em>resource</em> and
+<em>memory-safety</em> non-functional testing is not optional polish — it is the
+core of the discipline.</p>
+</div>
+<h2 id="3-testing-by-knowledge-of-internals">3. Testing by knowledge of internals<a class="headerlink" href="#3-testing-by-knowledge-of-internals" title="Permanent link">&para;</a></h2>
+<p>A third way of slicing the same activity — how much of the implementation the
+tester can see.</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Tester sees</th>
+<th>Derives tests from</th>
+<th>Strength</th>
+<th>Weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Black-box</strong></td>
+<td>Nothing but the interface</td>
+<td>Requirements, the public API</td>
+<td>Tests what users actually depend on; survives refactoring</td>
+<td>Can miss internal paths entirely</td>
+</tr>
+<tr>
+<td><strong>White-box</strong> (glass-box)</td>
+<td>The source code</td>
+<td>Code structure, branches, paths</td>
+<td>Can target every branch; measurable via coverage</td>
+<td>Tests can "agree with" the bug they were written from</td>
+</tr>
+<tr>
+<td><strong>Grey-box</strong></td>
+<td>Some internals (architecture, data structures)</td>
+<td>Both</td>
+<td>Practical middle ground; the common real-world mode</td>
+<td>Requires discipline not to over-couple</td>
+</tr>
+</tbody>
+</table>
+<p>Black-box techniques (boundary value analysis, equivalence partitioning) are
+Module 5. White-box coverage measurement is Level 2 Module 6. The healthy
+practice is to <strong>design black-box first, then measure with white-box coverage
+and fill the holes</strong> — that way your tests express requirements, and coverage
+merely tells you where you forgot to look.</p>
+<h2 id="4-test-types-by-purpose">4. Test types by purpose<a class="headerlink" href="#4-test-types-by-purpose" title="Permanent link">&para;</a></h2>
+<p>These names describe <em>why</em> a particular run is happening. Same test cases,
+different selections and different moments.</p>
+<h3 id="smoke-testing">Smoke testing<a class="headerlink" href="#smoke-testing" title="Permanent link">&para;</a></h3>
+<p>A tiny, fast subset that answers "is this build worth testing at all?" Named
+after hardware bring-up: power it on, see if smoke comes out. Run it first,
+every time; if it fails, reject the build and don't waste the day.</p>
+<p>A C/C++ smoke suite is typically: the binary builds, it starts, <code>--version</code>
+works, the three most critical functions return correct values on nominal input.
+Target: <strong>under 60 seconds.</strong></p>
+<h3 id="sanity-testing">Sanity testing<a class="headerlink" href="#sanity-testing" title="Permanent link">&para;</a></h3>
+<p>A narrow check after a small change or a bug fix — "did the specific thing that
+was supposed to be fixed actually get fixed?" Narrow and deep, where smoke is
+broad and shallow.</p>
+<h3 id="regression-testing">Regression testing<a class="headerlink" href="#regression-testing" title="Permanent link">&para;</a></h3>
+<p>Re-running existing tests to confirm that a change did not break something that
+previously worked. This is the single largest justification for test automation:
+regression is repetitive, unavoidable, and grows monotonically forever.</p>
+<p><strong>Every bug you fix should gain a regression test.</strong> The workflow:</p>
+<ol>
+<li>A defect is reported.</li>
+<li>Write a test that reproduces it — it <strong>fails</strong>. (If it passes, you haven't
+   reproduced the bug and your fix would be a guess.)</li>
+<li>Fix the code.</li>
+<li>The test now <strong>passes</strong>.</li>
+<li>It stays in the suite forever, so the bug cannot silently return.</li>
+</ol>
+<h3 id="re-testing-confirmation-testing">Re-testing (confirmation testing)<a class="headerlink" href="#re-testing-confirmation-testing" title="Permanent link">&para;</a></h3>
+<p>Distinct from regression, and often confused with it:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Re-test</th>
+<th>Regression</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Question</td>
+<td>Is <em>this specific defect</em> fixed?</td>
+<td>Did the fix break <em>anything else</em>?</td>
+</tr>
+<tr>
+<td>Scope</td>
+<td>The failing case only</td>
+<td>A broad selection or the whole suite</td>
+</tr>
+<tr>
+<td>Timing</td>
+<td>Immediately after the fix</td>
+<td>After the fix, usually automated in CI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="exploratory-testing">Exploratory testing<a class="headerlink" href="#exploratory-testing" title="Permanent link">&para;</a></h3>
+<p>Simultaneous learning, test design, and execution — unscripted, guided by
+skill and curiosity rather than a document. This is where genuinely unexpected
+bugs are found, and it is the strongest argument for keeping humans in the loop
+in an automated world. Timebox it (a 90-minute "session"), state a charter
+("explore the CSV import path looking for input the parser mishandles"), and
+take notes as you go; anything interesting becomes a permanent test case.</p>
+<h3 id="ad-hoc-testing">Ad-hoc testing<a class="headerlink" href="#ad-hoc-testing" title="Permanent link">&para;</a></h3>
+<p>Unstructured, undocumented poking. Legitimate as a quick sniff test; dangerous
+as a strategy, because it is unrepeatable and its coverage is unknown. If ad-hoc
+testing finds something, convert it into a documented case immediately.</p>
+<h3 id="others-worth-knowing">Others worth knowing<a class="headerlink" href="#others-worth-knowing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Alpha / beta</strong></td>
+<td>Field testing before general release</td>
+</tr>
+<tr>
+<td><strong>Compatibility</strong></td>
+<td>Works with other versions, compilers, libraries, hardware</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Behaves correctly after a crash, power loss, or watchdog reset — crucial in embedded</td>
+</tr>
+<tr>
+<td><strong>Installation</strong></td>
+<td>Deploys and upgrades cleanly (for firmware: does the OTA update path work?)</td>
+</tr>
+<tr>
+<td><strong>Localization</strong></td>
+<td>Correct across locales — in C, note that <code>printf("%f")</code> decimal separators change with the locale, a classic parsing bug</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-putting-it-together-a-cc-example">5. Putting it together — a C/C++ example<a class="headerlink" href="#5-putting-it-together-a-cc-example" title="Permanent link">&para;</a></h2>
+<p>Say you're testing a C++ library that parses sensor readings from a serial
+stream and publishes averaged values.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>What you'd test</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit</td>
+<td><code>parse_frame()</code> handles a valid frame, a truncated frame, a bad checksum. <code>RollingAverage::add()</code> computes correctly, including on overflow.</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td><code>SerialReader</code> + <code>FrameParser</code> together: bytes arriving split across two reads still produce one correct frame.</td>
+</tr>
+<tr>
+<td>System</td>
+<td>Real binary, real (or emulated) serial port, 10,000 frames in: correct output file, exit code 0, no leaks under Valgrind.</td>
+</tr>
+<tr>
+<td>Acceptance</td>
+<td>The customer's field data file produces the values their existing system produces, within tolerance.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>What you'd run</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Smoke</td>
+<td>Build succeeds, binary starts, one known-good frame parses correctly. 30 seconds.</td>
+</tr>
+<tr>
+<td>Functional</td>
+<td>The full unit + integration suite against every requirement.</td>
+</tr>
+<tr>
+<td>Regression</td>
+<td>That same suite, on every commit, in CI.</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Frames/second at <code>-O2</code> versus the documented budget.</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>72-hour soak with a repeating stream; RSS must be flat.</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Fuzz <code>parse_frame()</code> with random bytes under ASan — the highest-value single test in this whole table for C/C++ code that parses untrusted input.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
+<p>You are handed a small C++ library, <code>libconfig</code>, which:</p>
+<ul>
+<li>reads a <code>key=value</code> text configuration file from disk,</li>
+<li>exposes <code>std::optional&lt;std::string&gt; get(const std::string&amp; key)</code> and
+  <code>int get_int(const std::string&amp; key, int fallback)</code>,</li>
+<li>and is used by a long-running daemon that reloads the file on <code>SIGHUP</code>.</li>
+</ul>
+<p>Produce a one-page <strong>test strategy table</strong> with these columns: <em>Level</em>, <em>Type</em>,
+<em>What is tested</em>, <em>Automated or manual</em>, <em>Tooling</em>. Fill in at least:</p>
+<ol>
+<li>Three <strong>unit</strong>-level entries (name the specific functions and the specific
+   properties).</li>
+<li>Two <strong>integration</strong>-level entries — and for each, name what would have to be
+   stubbed or faked, and why.</li>
+<li>Two <strong>system</strong>-level entries, one of which must exercise the <code>SIGHUP</code> reload
+   path.</li>
+<li>Three <strong>non-functional</strong> entries. One must address the fact that this is a
+   <em>long-running</em> process, and one must address the fact that it parses a file
+   a user can edit (think: what does <code>get_int</code> do with <code>"99999999999999"</code>?).</li>
+<li>A <strong>smoke</strong> subset — list exactly which of your entries you would run first
+   on a new build, and justify why the total stays under a minute.</li>
+</ol>
+<p>Then write two or three sentences on where your table sits relative to the test
+pyramid, and whether that's appropriate for this component.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

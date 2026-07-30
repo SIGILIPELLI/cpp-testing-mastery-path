@@ -1,0 +1,3121 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A structured, module-wise software testing program for C and C++ — manual QA fundamentals through automated unit testing, sanitizers and CI, entry level to master level.">
+      
+      
+      
+        <link rel="canonical" href="https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/04-defect-lifecycle-bug-reporting/">
+      
+      
+        <link rel="prev" href="../03-test-types-and-levels/">
+      
+      
+        <link rel="next" href="../05-manual-testing-in-practice/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>04 · Defect Lifecycle & Bug Reporting - C/C++ Testing Mastery Path</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="C/C++ Testing Mastery Path">
+  <meta property="og:title" content="04 · Defect Lifecycle & Bug Reporting">
+  <meta property="og:description" content="A structured, module-wise software testing program for C and C++ — manual QA fundamentals, unit testing, sanitizers and CI automation, entry level to master level.">
+  <meta property="og:url" content="https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/04-defect-lifecycle-bug-reporting/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="04 · Defect Lifecycle & Bug Reporting">
+  <meta name="twitter:description" content="A structured, module-wise software testing program for C and C++ — manual QA fundamentals, unit testing, sanitizers and CI automation, entry level to master level.">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9440969811959397"
+     crossorigin="anonymous"></script>
+
+  <!-- Mastery Path premium gate: homepage + Level 1 stay free and crawlable;
+       Levels 2-4 require a signed-in account. -->
+  <script>
+    (function () {
+      if (!/\/level-[234]\//.test(window.location.pathname)) return;
+
+      var root = document.documentElement;
+      root.style.visibility = "hidden";
+
+      function reveal() { root.style.visibility = "visible"; }
+      function toLogin() {
+        window.location.replace(
+          "/login.html?redirect=" + encodeURIComponent(window.location.href)
+        );
+      }
+
+      var settled = false;
+      window.addEventListener("mastery-auth-ready", function (e) {
+        if (settled) return;
+        settled = true;
+        if (e.detail && e.detail.user) { reveal(); } else { toLogin(); }
+      }, { once: true });
+
+      // Fail closed: if Firebase never loads (blocked/offline), send to login
+      // rather than leaving a blank page or silently exposing the content.
+      setTimeout(function () {
+        if (!settled) { settled = true; toLogin(); }
+      }, 8000);
+    })();
+  </script>
+  <script type="module" src="/mastery-auth.js"></script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#04-defect-lifecycle-bug-reporting" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="C/C++ Testing Mastery Path" class="md-header__button md-logo" aria-label="C/C++ Testing Mastery Path" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            C/C++ Testing Mastery Path
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              04 · Defect Lifecycle & Bug Reporting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SIGILIPELLI/cpp-testing-mastery-path" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cpp-testing-mastery-path
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../privacy/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Privacy Policy
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 1 · Entry
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../level-2/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 2 · Intermediate
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../level-3/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 3 · Advanced
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../level-4/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Level 4 · Master
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="C/C++ Testing Mastery Path" class="md-nav__button md-logo" aria-label="C/C++ Testing Mastery Path" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    C/C++ Testing Mastery Path
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SIGILIPELLI/cpp-testing-mastery-path" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    cpp-testing-mastery-path
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../privacy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Privacy Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 1 · Entry
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 1 · Entry
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-what-is-software-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · What Is Software Testing?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-test-case-design-documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Test Case Design & Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-test-types-and-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Test Types & Levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Defect Lifecycle & Bug Reporting
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Defect Lifecycle & Bug Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-defect-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The defect lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-severity-vs-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Severity vs. priority
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Severity vs. priority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#severity-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Severity scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#all-four-combinations-occur" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All four combinations occur
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-bug-report-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The bug report template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-writing-a-title-that-does-its-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Writing a title that does its job
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-reporting-cc-crashes-and-undefined-behaviour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Reporting C/C++ crashes and undefined behaviour
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Reporting C/C++ crashes and undefined behaviour">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#always-include-the-exact-build-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Always include the exact build configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#include-the-signal-and-the-stack-trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include the signal and the stack trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#include-sanitizer-output-verbatim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include sanitizer output verbatim
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduce-the-input-to-a-minimal-reproducer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reduce the input to a minimal reproducer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-intermittent-failures-honestly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Report intermittent failures honestly
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-a-complete-worked-bug-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. A complete worked bug report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-defect-metrics-worth-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Defect metrics worth tracking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-common-bug-reporting-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Common bug-reporting mistakes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-manual-testing-in-practice/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Manual Testing in Practice
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-toolchain-setup-for-testers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Toolchain Setup for Testers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-unit-testing-googletest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Unit Testing with GoogleTest
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-unit-testing-c-unity-cmocka/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Unit Testing C with Unity/CMocka
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-test-builds-running-suites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Test Builds & Running Suites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-project-test-plan-and-suite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Project — Test Plan & GoogleTest Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../level-2/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 2 · Intermediate
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 2 · Intermediate
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/01-googletest-advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · GoogleTest Advanced
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/02-mocking-with-googlemock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Mocking with GoogleMock
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/03-cmocka-advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Testing C Code with CMocka Advanced
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/04-memory-error-detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Memory Error Detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/05-undefined-behavior-ubsan/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Undefined Behavior & UBSan
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/06-code-coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Code Coverage (gcov/lcov)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/07-test-doubles-hardware-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Test Doubles for Hardware/OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/08-cmake-ctest-deep-dive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · CMake/CTest Deep Dive
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/09-static-analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Static Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-2/10-project-instrumented-suite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Project — Instrumented Test Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../level-3/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 3 · Advanced
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 3 · Advanced
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/01-integration-testing-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Integration Testing Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/02-embedded-target-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Embedded Target Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/03-hardware-in-the-loop-basics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Hardware-in-the-Loop Basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/04-fuzz-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Fuzz Testing (libFuzzer, AFL)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/05-property-based-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Property-Based Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/06-ci-cd-for-test-suites/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · CI/CD for C/C++ Test Suites
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/07-performance-benchmark-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Performance & Benchmark Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/08-concurrency-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Concurrency Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/09-legacy-code-under-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Legacy Code Under Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-3/10-project-ci-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Project — CI Pipeline with Sanitizers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../level-4/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Level 4 · Master
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Level 4 · Master
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/01-test-architecture-large-codebases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01 · Test Architecture for Large Codebases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/02-safety-critical-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02 · Safety-Critical Testing Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/03-requirements-based-testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03 · Requirements-Based Testing & Traceability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/04-formal-methods-static-verification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04 · Formal Methods & Static Verification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/05-certification-evidence-reporting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    05 · Certification Evidence & Reporting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/06-cross-compilation-test-strategies/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    06 · Cross-Compilation Test Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/07-simulation-emulation-qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    07 · Simulation & Emulation (QEMU)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/08-quality-gates-metrics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    08 · Quality Gates & Metrics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/09-in-house-test-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    09 · Building an In-House Test Framework
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../level-4/10-capstone-project/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    10 · Capstone Project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-defect-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The defect lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-severity-vs-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Severity vs. priority
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Severity vs. priority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#severity-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Severity scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#priority-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Priority scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#all-four-combinations-occur" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        All four combinations occur
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-bug-report-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The bug report template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-writing-a-title-that-does-its-job" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Writing a title that does its job
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-reporting-cc-crashes-and-undefined-behaviour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Reporting C/C++ crashes and undefined behaviour
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Reporting C/C++ crashes and undefined behaviour">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#always-include-the-exact-build-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Always include the exact build configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#include-the-signal-and-the-stack-trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include the signal and the stack trace
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#include-sanitizer-output-verbatim" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include sanitizer output verbatim
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reduce-the-input-to-a-minimal-reproducer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reduce the input to a minimal reproducer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#report-intermittent-failures-honestly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Report intermittent failures honestly
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-a-complete-worked-bug-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. A complete worked bug report
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-defect-metrics-worth-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Defect metrics worth tracking
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-common-bug-reporting-mistakes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Common bug-reporting mistakes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exercise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exercise
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="04-defect-lifecycle-bug-reporting">04 · Defect Lifecycle &amp; Bug Reporting<a class="headerlink" href="#04-defect-lifecycle-bug-reporting" title="Permanent link">&para;</a></h1>
+<p>Finding a bug is half the job. The other half is communicating it so precisely
+that a developer can reproduce and fix it without ever talking to you. A bug
+report is a technical document with a job to do, and in C/C++ it has to carry
+information — build flags, sanitizer output, exact input bytes — that reports in
+other languages can skip.</p>
+<h2 id="1-the-defect-lifecycle">1. The defect lifecycle<a class="headerlink" href="#1-the-defect-lifecycle" title="Permanent link">&para;</a></h2>
+<p>Every defect moves through a state machine. Names vary by tool (Jira, Bugzilla,
+GitHub Issues, Polarion), but the shape is standard:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>    New ──► Assigned ──► In Progress ──► Fixed ──► Retest ──► Closed
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>     │          │                                     │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>     │          │                                     └──► Reopened ──► Assigned
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>     │          │
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>     ├──► Duplicate (closed)
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>     ├──► Rejected / Not a Bug (closed)
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>     ├──► Deferred (backlog)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>     └──► Cannot Reproduce ──► (needs more info from reporter)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Meaning</th>
+<th>Who owns it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>New</strong></td>
+<td>Just filed, not yet triaged</td>
+<td>Reporter (until triage)</td>
+</tr>
+<tr>
+<td><strong>Assigned</strong></td>
+<td>Triaged, accepted, given an owner</td>
+<td>Developer</td>
+</tr>
+<tr>
+<td><strong>In Progress</strong></td>
+<td>Being worked on</td>
+<td>Developer</td>
+</tr>
+<tr>
+<td><strong>Fixed</strong></td>
+<td>Developer believes it's resolved; a change is committed</td>
+<td>Tester (awaiting verification)</td>
+</tr>
+<tr>
+<td><strong>Retest</strong></td>
+<td>Available in a build for the tester to verify</td>
+<td>Tester</td>
+</tr>
+<tr>
+<td><strong>Closed</strong></td>
+<td>Verified fixed in a specific build</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Reopened</strong></td>
+<td>Verification failed; back to the developer</td>
+<td>Developer</td>
+</tr>
+<tr>
+<td><strong>Duplicate</strong></td>
+<td>Same underlying defect as an existing report</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Rejected / Not a Bug</strong></td>
+<td>Behaviour is per specification</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>Deferred</strong></td>
+<td>Real, accepted, not fixing now</td>
+<td>Product owner</td>
+</tr>
+<tr>
+<td><strong>Cannot Reproduce</strong></td>
+<td>Developer couldn't make it happen</td>
+<td>Reporter</td>
+</tr>
+</tbody>
+</table>
+<p>Two rules that prevent most process pain:</p>
+<ul>
+<li><strong>Only the reporter (or a tester) closes a defect.</strong> A developer marks it
+  <em>Fixed</em>; verification is a separate act by a different person. Self-closing
+  destroys the audit trail and lets unverified fixes ship.</li>
+<li><strong>Always record the build.</strong> "Fixed" is meaningless without "fixed in build
+  1.4.2-rc3" — otherwise nobody knows which builds still contain it.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">'Cannot Reproduce' is usually a report-quality defect</p>
+<p>In C/C++ it is <em>also</em> frequently a genuine environment difference: the bug
+reproduces at <code>-O2</code> but not <code>-O0</code>, on GCC but not Clang, on ARM but not
+x86-64, or only on the fifth run because it's a race. Before you accept a
+"cannot reproduce", check that the developer used your exact build
+configuration. Section 5 covers this.</p>
+</div>
+<h2 id="2-severity-vs-priority">2. Severity vs. priority<a class="headerlink" href="#2-severity-vs-priority" title="Permanent link">&para;</a></h2>
+<p>The most commonly confused pair in the whole discipline. They are <strong>independent
+axes</strong> set by <strong>different people</strong> for <strong>different reasons</strong>.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Severity</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Measures</td>
+<td>Technical impact on the system</td>
+<td>Urgency of fixing it</td>
+</tr>
+<tr>
+<td>Set by</td>
+<td>The tester (objective, from observed behaviour)</td>
+<td>Product owner / manager (business decision)</td>
+</tr>
+<tr>
+<td>Changes when</td>
+<td>Rarely — impact is what it is</td>
+<td>Often — as release dates and customers shift</td>
+</tr>
+<tr>
+<td>Question</td>
+<td>"How badly does it break?"</td>
+<td>"How soon must we fix it?"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="severity-scale">Severity scale<a class="headerlink" href="#severity-scale" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Name</th>
+<th>Definition</th>
+<th>C/C++ examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S1</td>
+<td><strong>Critical / Blocker</strong></td>
+<td>System unusable; no workaround; data loss or corruption</td>
+<td>Segfault on startup; heap corruption; a buffer overflow reachable from untrusted input</td>
+</tr>
+<tr>
+<td>S2</td>
+<td><strong>Major</strong></td>
+<td>Major function broken; awkward workaround exists</td>
+<td>A parser rejects all valid input over 100 chars; a memory leak that exhausts RAM in 6 hours</td>
+</tr>
+<tr>
+<td>S3</td>
+<td><strong>Minor</strong></td>
+<td>Function works but incorrectly in a limited case</td>
+<td>Off-by-one in a displayed count; error message names the wrong field</td>
+</tr>
+<tr>
+<td>S4</td>
+<td><strong>Trivial / Cosmetic</strong></td>
+<td>No functional impact</td>
+<td>Typo in a log message; misaligned column in <code>--help</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-scale">Priority scale<a class="headerlink" href="#priority-scale" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Name</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>Urgent</td>
+<td>Fix now; blocks the release or other people's work</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>High</td>
+<td>Fix in this release</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>Medium</td>
+<td>Fix when convenient</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>Low</td>
+<td>Fix if there's ever spare time</td>
+</tr>
+</tbody>
+</table>
+<h3 id="all-four-combinations-occur">All four combinations occur<a class="headerlink" href="#all-four-combinations-occur" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Combination</th>
+<th>Realistic example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>High severity, high priority</strong></td>
+<td>Firmware segfaults on boot with a common sensor attached. Obvious P1S1.</td>
+</tr>
+<tr>
+<td><strong>High severity, low priority</strong></td>
+<td>The program crashes if you pass <code>--legacy-mode</code>, a flag deprecated three years ago that one internal script uses. Severe (crash) but nobody urgent is affected.</td>
+</tr>
+<tr>
+<td><strong>Low severity, high priority</strong></td>
+<td>The company name is misspelled on the CLI splash screen shown in tomorrow's investor demo. Cosmetic, but fix it today.</td>
+</tr>
+<tr>
+<td><strong>Low severity, low priority</strong></td>
+<td>Trailing whitespace in a debug log line.</td>
+</tr>
+</tbody>
+</table>
+<p>Your job as a tester is to assign <strong>severity accurately and defend it</strong>, and to
+<em>propose</em> a priority while accepting that someone else decides it. Inflating
+severity to get attention is a short-term tactic that destroys the credibility
+of your entire defect database.</p>
+<h2 id="3-the-bug-report-template">3. The bug report template<a class="headerlink" href="#3-the-bug-report-template" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ID</strong></td>
+<td>Assigned by the tracker</td>
+</tr>
+<tr>
+<td><strong>Title</strong></td>
+<td>One line: <em>what</em> is wrong, <em>where</em>, and <em>when</em>. See section 4.</td>
+</tr>
+<tr>
+<td><strong>Severity</strong></td>
+<td>S1–S4, from the definitions above</td>
+</tr>
+<tr>
+<td><strong>Priority (proposed)</strong></td>
+<td>P1–P4</td>
+</tr>
+<tr>
+<td><strong>Reported by / Date</strong></td>
+<td>You / today</td>
+</tr>
+<tr>
+<td><strong>Build / Version</strong></td>
+<td>Exact version, commit SHA, or build number</td>
+</tr>
+<tr>
+<td><strong>Environment</strong></td>
+<td>OS, architecture, compiler + version, build flags, target hardware</td>
+</tr>
+<tr>
+<td><strong>Component</strong></td>
+<td>The module/file, if known</td>
+</tr>
+<tr>
+<td><strong>Preconditions</strong></td>
+<td>What state must exist first</td>
+</tr>
+<tr>
+<td><strong>Steps to reproduce</strong></td>
+<td>Numbered, minimal, complete</td>
+</tr>
+<tr>
+<td><strong>Expected result</strong></td>
+<td>What should happen, with the requirement ID if there is one</td>
+</tr>
+<tr>
+<td><strong>Actual result</strong></td>
+<td>What did happen, verbatim</td>
+</tr>
+<tr>
+<td><strong>Reproducibility</strong></td>
+<td>Always / Intermittent (n of m runs) / Once</td>
+</tr>
+<tr>
+<td><strong>Attachments</strong></td>
+<td>Input files, core dump, sanitizer output, stack trace, log excerpt, screenshot</td>
+</tr>
+<tr>
+<td><strong>Regression?</strong></td>
+<td>Did this work in an earlier build? Which one?</td>
+</tr>
+<tr>
+<td><strong>Workaround</strong></td>
+<td>If one exists</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-writing-a-title-that-does-its-job">4. Writing a title that does its job<a class="headerlink" href="#4-writing-a-title-that-does-its-job" title="Permanent link">&para;</a></h2>
+<p>The title is read by dozens of people who will never open the report. It should
+be searchable and self-explanatory.</p>
+<table>
+<thead>
+<tr>
+<th>Poor title</th>
+<th>Problem</th>
+<th>Better</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"Crash"</td>
+<td>Says nothing</td>
+<td>"Segfault in <code>parse_frame()</code> when input frame is truncated at byte 3"</td>
+</tr>
+<tr>
+<td>"Doesn't work"</td>
+<td>Says nothing</td>
+<td>"<code>get_int()</code> returns 0 instead of the fallback for non-numeric values"</td>
+</tr>
+<tr>
+<td>"Memory issue"</td>
+<td>Which kind? Where?</td>
+<td>"Heap-use-after-free in <code>SensorBuffer::flush()</code> reported by ASan on repeated flush"</td>
+</tr>
+<tr>
+<td>"Bug in config parsing"</td>
+<td>Too broad</td>
+<td>"Config keys with trailing spaces are silently ignored"</td>
+</tr>
+<tr>
+<td>"URGENT!!! FIX NOW"</td>
+<td>Priority belongs in the priority field</td>
+<td>"Firmware fails to boot when EEPROM checksum is 0xFFFF"</td>
+</tr>
+</tbody>
+</table>
+<p>The formula: <strong><code>&lt;symptom&gt;</code> in <code>&lt;location&gt;</code> when <code>&lt;condition&gt;</code>.</strong></p>
+<h2 id="5-reporting-cc-crashes-and-undefined-behaviour">5. Reporting C/C++ crashes and undefined behaviour<a class="headerlink" href="#5-reporting-cc-crashes-and-undefined-behaviour" title="Permanent link">&para;</a></h2>
+<p>This is where C/C++ bug reporting genuinely differs from other languages. A
+crash report without the following is usually unactionable.</p>
+<h3 id="always-include-the-exact-build-configuration">Always include the exact build configuration<a class="headerlink" href="#always-include-the-exact-build-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Compiler:  gcc 13.2.0 (Ubuntu 13.2.0-23ubuntu4)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>Flags:     -std=c++17 -O2 -Wall -Wextra -g
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>Arch:      x86-64
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>OS:        Ubuntu 24.04.1 LTS, kernel 6.8.0-45
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>Libc:      glibc 2.39
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>Build:     cmake -DCMAKE_BUILD_TYPE=Release ..
+</code></pre></div>
+<p>Optimization level is not a detail. Undefined behaviour frequently manifests at
+<code>-O2</code> and vanishes at <code>-O0</code>, because the optimizer is permitted to assume UB
+never happens (see Module 1). "Works in Debug, crashes in Release" is a <em>symptom
+worth reporting in the title</em>, not an inconvenience to hide.</p>
+<h3 id="include-the-signal-and-the-stack-trace">Include the signal and the stack trace<a class="headerlink" href="#include-the-signal-and-the-stack-trace" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ ./tempconv --input malformed.csv
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Segmentation fault (core dumped)
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>$ echo $?
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>139        # 128 + 11 (SIGSEGV)
+</code></pre></div>
+<p>Get a backtrace with gdb:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Enable core dumps for this shell, then reproduce</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">ulimit</span><span class="w"> </span>-c<span class="w"> </span>unlimited
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>./tempconv<span class="w"> </span>--input<span class="w"> </span>malformed.csv
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>gdb<span class="w"> </span>./tempconv<span class="w"> </span>core
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>bt
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1">#0  0x0000555555555 in parse_row (row=0x0, out=0x7fff...) at parser.c:88</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1">#1  0x0000555555777 in read_file (path=0x7fff... &quot;malformed.csv&quot;) at reader.c:41</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1">#2  0x0000555555999 in main (argc=3, argv=0x7fff...) at main.c:22</span>
+</code></pre></div>
+<p>Or run it under gdb directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>gdb<span class="w"> </span>--args<span class="w"> </span>./tempconv<span class="w"> </span>--input<span class="w"> </span>malformed.csv
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>run
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>bt<span class="w"> </span>full<span class="w">        </span><span class="c1"># backtrace with local variables -- attach the whole thing</span>
+</code></pre></div>
+<p>Attach the <strong>full</strong> backtrace, not just the top frame. Frame 0 is where it died;
+frames 1 and 2 are usually where the actual bug is.</p>
+<h3 id="include-sanitizer-output-verbatim">Include sanitizer output verbatim<a class="headerlink" href="#include-sanitizer-output-verbatim" title="Permanent link">&para;</a></h3>
+<p>If you can rebuild with sanitizers (Level 2 covers them properly), a two-minute
+rebuild converts a vague "it crashes sometimes" into a precise diagnosis:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>g++<span class="w"> </span>-std<span class="o">=</span>c++17<span class="w"> </span>-g<span class="w"> </span>-fsanitize<span class="o">=</span>address<span class="w"> </span>-fno-omit-frame-pointer<span class="w"> </span>-o<span class="w"> </span>tempconv_asan<span class="w"> </span>*.cpp
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>./tempconv_asan<span class="w"> </span>--input<span class="w"> </span>malformed.csv
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>=================================================================
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>==48211==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x60200000ef35
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>READ of size 1 at 0x60200000ef35 thread T0
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    #0 0x4f8a12 in parse_row(char const*, Row*) parser.cpp:88:17
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    #1 0x4f9c04 in read_file(char const*) reader.cpp:41:9
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    #2 0x4fa118 in main main.cpp:22:5
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>0x60200000ef35 is located 0 bytes to the right of 5-byte region
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>allocated by thread T0 here:
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    #0 0x4c1b3d in operator new(unsigned long)
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    #1 0x4f8901 in parse_row(char const*, Row*) parser.cpp:74:20
+</code></pre></div>
+<p>Paste this <strong>whole block</strong> into the report. It names the file, line, the exact
+kind of violation, and the allocation site. A report containing this costs the
+developer minutes; the same bug reported as "crashes on some CSV files" costs
+days.</p>
+<h3 id="reduce-the-input-to-a-minimal-reproducer">Reduce the input to a minimal reproducer<a class="headerlink" href="#reduce-the-input-to-a-minimal-reproducer" title="Permanent link">&para;</a></h3>
+<p>A 4 MB CSV file that triggers the bug is a starting point, not a report. Bisect
+it: halve the file, re-run, keep the half that still fails, repeat. You will
+usually land on a handful of bytes.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a># minimal_repro.csv -- 11 bytes, still segfaults
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>id,temp
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>1,
+</code></pre></div>
+<p>Then state it exactly, including invisible characters:</p>
+<blockquote>
+<p>Reproduces with any CSV where a row has a header but an empty final field and
+<strong>no trailing newline</strong>. Hex dump of the minimal file:
+<code>69 64 2c 74 65 6d 70 0a 31 2c</code> (note: no <code>0a</code> at end of file).</p>
+</blockquote>
+<p>A hex dump beats a description whenever whitespace, line endings, or encoding
+could matter — which for a C parser is nearly always.</p>
+<h3 id="report-intermittent-failures-honestly">Report intermittent failures honestly<a class="headerlink" href="#report-intermittent-failures-honestly" title="Permanent link">&para;</a></h3>
+<p>For a race or a UB-dependent bug, reproducibility is data:</p>
+<blockquote>
+<p><strong>Reproducibility:</strong> Intermittent — 3 of 50 runs at <code>-O2</code>; 0 of 50 runs at
+<code>-O0</code>; 47 of 50 runs under <code>-fsanitize=thread</code>. Reproduction script attached
+(<code>loop_repro.sh</code> runs the binary 50 times and counts non-zero exits).</p>
+</blockquote>
+<p>Never write "sometimes crashes" when you can write "3 of 50 runs". Attach the
+loop script so the developer can measure the same way — otherwise "I ran it
+twice and it was fine" closes your report as Cannot Reproduce.</p>
+<h2 id="6-a-complete-worked-bug-report">6. A complete worked bug report<a class="headerlink" href="#6-a-complete-worked-bug-report" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>ID:</strong> BUG-1174
+<strong>Title:</strong> Heap-buffer-overflow read in <code>parse_row()</code> when final CSV field is empty and file has no trailing newline
+<strong>Severity:</strong> S1 — Critical (out-of-bounds read; crashes at <code>-O2</code>; input is user-supplied, so potentially a security issue)
+<strong>Priority (proposed):</strong> P1
+<strong>Reported by:</strong> A. Tester, 2026-07-30
+<strong>Build:</strong> <code>tempconv</code> v1.4.2-rc3, commit <code>a91f3d7</code>
+<strong>Environment:</strong> Ubuntu 24.04.1, x86-64, gcc 13.2.0, <code>-std=c++17 -O2 -g</code>, glibc 2.39. Also reproduced with clang 18 at <code>-O2</code>.
+<strong>Component:</strong> <code>parser.cpp</code>, <code>parse_row()</code></p>
+<p><strong>Preconditions:</strong> None. Fresh build, no configuration.</p>
+<p><strong>Steps to reproduce:</strong>
+1. Create <code>minimal_repro.csv</code> containing exactly the bytes <code>69 64 2c 74 65 6d 70 0a 31 2c</code> (<code>id,temp\n1,</code> — no trailing newline). Attached.
+2. Run <code>./tempconv --input minimal_repro.csv --output /tmp/out.csv</code></p>
+<p><strong>Expected result:</strong> Per REQ-CSV-007, a row with a missing final field is reported as a malformed row: the tool prints <code>error: malformed row 1</code> to stderr and exits with code 2. No crash.</p>
+<p><strong>Actual result:</strong> Process terminates with SIGSEGV (exit code 139). No output file is created. Under <code>-fsanitize=address</code> the run aborts with a heap-buffer-overflow READ of size 1, 0 bytes to the right of a 5-byte allocation made at <code>parser.cpp:74</code>, read at <code>parser.cpp:88</code>. Full ASan report attached (<code>asan.log</code>); gdb backtrace attached (<code>bt.txt</code>).</p>
+<p><strong>Reproducibility:</strong> Always at <code>-O2</code> (20/20 runs). At <code>-O0</code>, the process does <em>not</em> crash and silently writes a row containing garbage — arguably worse, since it produces wrong output with no error. Both behaviours trace to the same out-of-bounds read.</p>
+<p><strong>Regression?</strong> Yes. v1.3.8 correctly printed <code>error: malformed row 1</code>. Bisect points to commit <code>c40b12e</code> ("optimize row splitting").</p>
+<p><strong>Workaround:</strong> Ensure input files end with a newline.</p>
+<p><strong>Attachments:</strong> <code>minimal_repro.csv</code>, <code>asan.log</code>, <code>bt.txt</code>, <code>hexdump.txt</code></p>
+</blockquote>
+<p>Notice how much of that report's value comes from things the tester <em>did</em> rather
+than <em>observed</em>: minimized the input, rebuilt with ASan, tried a second
+compiler, tried a second optimization level, bisected to a commit, and checked
+an older release. That work is the difference between a report that gets fixed
+this week and one that sits in triage.</p>
+<h2 id="7-defect-metrics-worth-tracking">7. Defect metrics worth tracking<a class="headerlink" href="#7-defect-metrics-worth-tracking" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Formula</th>
+<th>What it tells you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Defect density</strong></td>
+<td>Defects ÷ KLOC</td>
+<td>Which modules are the problem children (defect clustering, Module 1)</td>
+</tr>
+<tr>
+<td><strong>Defect Removal Efficiency (DRE)</strong></td>
+<td>Defects found before release ÷ (found before + found after) × 100</td>
+<td>How effective your process is. 95% is good; below 80% means production is your test environment.</td>
+</tr>
+<tr>
+<td><strong>Defect age</strong></td>
+<td>Time from New to Closed</td>
+<td>Whether fixes are actually happening</td>
+</tr>
+<tr>
+<td><strong>Reopen rate</strong></td>
+<td>Reopened ÷ Fixed</td>
+<td>High rate means fixes aren't being verified properly, or reports are ambiguous</td>
+</tr>
+<tr>
+<td><strong>Cannot-Reproduce rate</strong></td>
+<td>CNR ÷ total filed</td>
+<td>High rate usually means report quality — or environment-dependent UB</td>
+</tr>
+</tbody>
+</table>
+<h2 id="8-common-bug-reporting-mistakes">8. Common bug-reporting mistakes<a class="headerlink" href="#8-common-bug-reporting-mistakes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multiple bugs in one report</td>
+<td>Half gets fixed, the report gets closed, the rest survives</td>
+</tr>
+<tr>
+<td>No build/environment info</td>
+<td>Cannot Reproduce, especially in C/C++</td>
+</tr>
+<tr>
+<td>"Expected: it should work"</td>
+<td>Nobody knows what correct looks like; developer guesses</td>
+</tr>
+<tr>
+<td>Non-minimal reproducer</td>
+<td>Developer spends the first day doing your minimization</td>
+</tr>
+<tr>
+<td>Assigning the root cause in the title ("null pointer in malloc")</td>
+<td>Anchors the developer on a wrong theory; report <em>symptoms</em>, hypothesize separately</td>
+</tr>
+<tr>
+<td>Emotional language</td>
+<td>Reduces your credibility and the report's shelf life</td>
+</tr>
+<tr>
+<td>Filing without searching for duplicates</td>
+<td>Noise; splits the discussion across two threads</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
+<p>Return to the <code>average()</code> function from Module 1's exercise:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">average</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">count</span><span class="p">;</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">}</span>
+</code></pre></div>
+<ol>
+<li><strong>File three separate bug reports</strong> — one per defect you identified — using
+   the full template from section 3. Do not combine them. For each:</li>
+<li>assign and <em>justify</em> a severity from the scale in section 2,</li>
+<li>propose a priority and say who would really decide it,</li>
+<li>write a title using the <code>&lt;symptom&gt; in &lt;location&gt; when &lt;condition&gt;</code> formula,</li>
+<li>
+<p>give minimal, numbered reproduction steps including the exact array
+     contents and <code>count</code> value you would pass.</p>
+</li>
+<li>
+<p>For the out-of-bounds read specifically, write the <strong>Actual result</strong> field
+   twice: once describing what a plain <code>-O0</code> run would most likely show, and
+   once describing what an ASan-instrumented run would show. Note in one
+   sentence which version a developer can act on faster, and why.</p>
+</li>
+<li>
+<p>Construct a <strong>severity/priority grid</strong> (a 2×2 table: high/low severity ×
+   high/low priority) and place each of your three defects in it, assuming this
+   function is used in (a) an internal reporting script, then (b) an automotive
+   ECU. Note which placements move between the two contexts and why — this is
+   testing principle 6, "testing is context dependent", made concrete.</p>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "content.code.copy", "content.code.annotate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
