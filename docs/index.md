@@ -22,9 +22,9 @@ those bugs.
 | Level | Focus | Modules |
 |-------|-------|---------|
 | [Level 1 · Entry](level-1/index.md) | Testing fundamentals + first automated tests | 9 topics + 1 project |
-| Level 2 · Intermediate (coming soon) | Mocking, sanitizers, coverage, static analysis | 9 topics + 1 project |
-| Level 3 · Advanced (coming soon) | Integration, embedded targets, fuzzing, CI/CD | 9 topics + 1 project |
-| Level 4 · Master (coming soon) | Safety-critical, traceability, test architecture | 9 topics + 1 capstone |
+| [Level 2 · Intermediate](level-2/index.md) | Mocking, sanitizers, coverage, static analysis | 9 topics + 1 project |
+| [Level 3 · Advanced](level-3/index.md) | Integration, embedded targets, fuzzing, CI/CD | 9 topics + 1 project |
+| [Level 4 · Master](level-4/index.md) | Safety-critical, traceability, test architecture | 9 topics + 1 capstone |
 
 ## How to use this site
 

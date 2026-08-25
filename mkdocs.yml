@@ -62,8 +62,39 @@ nav:
       - "08 · Unit Testing C with Unity/CMocka": level-1/08-unit-testing-c-unity-cmocka.md
       - "09 · Test Builds & Running Suites": level-1/09-test-builds-running-suites.md
       - "10 · Project — Test Plan & GoogleTest Suite": level-1/10-project-test-plan-and-suite.md
-# --- auto-pruned stub levels (see AdSense low-value-content fix) ---
-exclude_docs: |
-  level-2/*.md
-  level-3/*.md
-  level-4/*.md
+  - "Level 2 · Intermediate":
+      - Overview: level-2/index.md
+      - "01 · GoogleTest Advanced": level-2/01-googletest-advanced.md
+      - "02 · Mocking with GoogleMock": level-2/02-mocking-with-googlemock.md
+      - "03 · Testing C Code with CMocka Advanced": level-2/03-cmocka-advanced.md
+      - "04 · Memory Error Detection": level-2/04-memory-error-detection.md
+      - "05 · Undefined Behavior & UBSan": level-2/05-undefined-behavior-ubsan.md
+      - "06 · Code Coverage (gcov/lcov)": level-2/06-code-coverage.md
+      - "07 · Test Doubles for Hardware/OS": level-2/07-test-doubles-hardware-os.md
+      - "08 · CMake/CTest Deep Dive": level-2/08-cmake-ctest-deep-dive.md
+      - "09 · Static Analysis": level-2/09-static-analysis.md
+      - "10 · Project — Instrumented Test Suite": level-2/10-project-instrumented-suite.md
+  - "Level 3 · Advanced":
+      - Overview: level-3/index.md
+      - "01 · Integration Testing Strategies": level-3/01-integration-testing-strategies.md
+      - "02 · Embedded Target Testing": level-3/02-embedded-target-testing.md
+      - "03 · Hardware-in-the-Loop Basics": level-3/03-hardware-in-the-loop-basics.md
+      - "04 · Fuzz Testing": level-3/04-fuzz-testing.md
+      - "05 · Property-Based Testing": level-3/05-property-based-testing.md
+      - "06 · CI/CD for C/C++ Test Suites": level-3/06-ci-cd-for-test-suites.md
+      - "07 · Performance & Benchmark Testing": level-3/07-performance-benchmark-testing.md
+      - "08 · Concurrency Testing": level-3/08-concurrency-testing.md
+      - "09 · Legacy Code: Getting Untestable Code Under Test": level-3/09-legacy-code-under-test.md
+      - "10 · Project — CI Pipeline with Sanitizers, Coverage and Fuzzing": level-3/10-project-ci-pipeline.md
+  - "Level 4 · Master":
+      - Overview: level-4/index.md
+      - "01 · Test Architecture for Large Codebases": level-4/01-test-architecture-large-codebases.md
+      - "02 · Safety-Critical Testing Standards": level-4/02-safety-critical-standards.md
+      - "03 · Requirements-Based Testing & Traceability": level-4/03-requirements-based-testing.md
+      - "04 · Formal Methods & Static Verification Basics": level-4/04-formal-methods-static-verification.md
+      - "05 · Certification Evidence & Test Reporting": level-4/05-certification-evidence-reporting.md
+      - "06 · Cross-Compilation Test Strategies": level-4/06-cross-compilation-test-strategies.md
+      - "07 · Simulation & Emulation (QEMU-based Test Rigs)": level-4/07-simulation-emulation-qemu.md
+      - "08 · Quality Gates & Metrics": level-4/08-quality-gates-metrics.md
+      - "09 · Building an In-House C/C++ Test Framework": level-4/09-in-house-test-framework.md
+      - "10 · Capstone — Production-Grade Test Infrastructure": level-4/10-capstone-project.md
