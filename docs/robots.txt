@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sigilipelli.github.io/cpp-testing-mastery-path/sitemap.xml
+Sitemap: https://sigilipelli.github.io/cpp-testing-skillmastery/sitemap.xml

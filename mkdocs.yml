@@ -1,8 +1,8 @@
 site_name: C/C++ Testing Mastery Path
 site_description: A structured, module-wise software testing program for C and C++ — manual QA fundamentals through automated unit testing, sanitizers and CI, entry level to master level.
-site_url: https://sigilipelli.github.io/cpp-testing-mastery-path/
-repo_url: https://github.com/SIGILIPELLI/cpp-testing-mastery-path
-repo_name: cpp-testing-mastery-path
+site_url: https://sigilipelli.github.io/cpp-testing-skillmastery/
+repo_url: https://github.com/SIGILIPELLI/cpp-testing-skillmastery
+repo_name: cpp-testing-skillmastery
 
 theme:
   name: material
