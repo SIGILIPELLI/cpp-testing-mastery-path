@@ -2,186 +2,190 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
+    </url>
+    <url>
+         <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/license/</loc>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/privacy/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/01-what-is-software-testing/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/02-test-case-design-documentation/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/03-test-types-and-levels/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/04-defect-lifecycle-bug-reporting/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/05-manual-testing-in-practice/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/06-toolchain-setup-for-testers/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/07-unit-testing-googletest/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/08-unit-testing-c-unity-cmocka/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/09-test-builds-running-suites/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-1/10-project-test-plan-and-suite/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/01-googletest-advanced/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/02-mocking-with-googlemock/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/03-cmocka-advanced/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/04-memory-error-detection/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/05-undefined-behavior-ubsan/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/06-code-coverage/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/07-test-doubles-hardware-os/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/08-cmake-ctest-deep-dive/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/09-static-analysis/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-2/10-project-instrumented-suite/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/01-integration-testing-strategies/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/02-embedded-target-testing/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/03-hardware-in-the-loop-basics/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/04-fuzz-testing/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/05-property-based-testing/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/06-ci-cd-for-test-suites/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/07-performance-benchmark-testing/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/08-concurrency-testing/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/09-legacy-code-under-test/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-3/10-project-ci-pipeline/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/01-test-architecture-large-codebases/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/02-safety-critical-standards/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/03-requirements-based-testing/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/04-formal-methods-static-verification/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/05-certification-evidence-reporting/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/06-cross-compilation-test-strategies/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/07-simulation-emulation-qemu/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/08-quality-gates-metrics/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/09-in-house-test-framework/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
     <url>
          <loc>https://sigilipelli.github.io/cpp-testing-mastery-path/level-4/10-capstone-project/</loc>
-         <lastmod>2026-09-02</lastmod>
+         <lastmod>2026-09-04</lastmod>
     </url>
 </urlset>
