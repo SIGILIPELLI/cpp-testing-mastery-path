@@ -258,6 +258,47 @@ for i in $(seq 1 50); do ./race_demo_tsan >/dev/null 2>&1 || echo "run $i: TSan 
 | Passes locally, fails under load | Race only exercised at higher concurrency | Stress-run the same TSan binary many times, at higher thread counts |
 | Slow to detect | TSan needs the racy access to actually execute | Combine with fuzzing/property tests generating varied thread interleavings via delays |
 
+## How It Actually Works: ThreadSanitizer's happens-before vector clocks
+
+TSan catches races that never actually corrupt anything visible in a given
+run — it doesn't wait for a wrong answer, it detects the *absence of
+synchronization* directly.
+
+- **Every memory access and every synchronization event is instrumented,
+  like ASan but tracking a different kind of shadow state.** Where ASan's
+  shadow memory encodes "is this byte addressable," TSan's shadow state
+  encodes, per memory location, the set of prior accesses (thread ID, clock
+  value, read/write) that touched it. Every load/store your compiled code
+  performs is wrapped with a call into the TSan runtime that consults and
+  updates this shadow state.
+- **Each thread carries a vector clock, and synchronization primitives
+  transfer clock information between threads.** A vector clock is an array of
+  per-thread logical counters. Acquiring a mutex that another thread
+  previously released causes the acquiring thread's vector clock to be
+  updated (`max`'d) against the releasing thread's clock at release time —
+  this is exactly what "happens-before" means formally: event A
+  happens-before event B if B's vector clock dominates A's after any chain of
+  such transfers (through mutexes, atomics with acquire/release semantics,
+  thread creation/join).
+- **A race is flagged when two accesses to the same location, from different
+  threads, are *not* ordered by any happens-before chain, and at least one is
+  a write.** TSan checks this by comparing the current access's (thread,
+  clock) against the shadow state's recorded prior accesses — if neither
+  vector clock dominates the other, there is no synchronization event that
+  could have prevented them from executing concurrently, regardless of
+  whether they actually interleaved badly *this run*. That's the mechanical
+  reason TSan can report a race the very first time it executes that code
+  path, while a stress-testing loop might run the same binary a thousand
+  times without ever hitting the specific interleaving that produces a
+  visibly wrong result.
+- **`volatile` carries no happens-before information, which is precisely why
+  it doesn't fix races.** `volatile` only tells the compiler "don't
+  cache/reorder this access relative to other volatile accesses" — it emits
+  no memory fence, no cross-core cache synchronization, and updates no vector
+  clock. `std::atomic` with acquire/release ordering, by contrast, is exactly
+  what TSan's instrumentation recognizes as a synchronization event and uses
+  to propagate vector-clock information between threads.
+
 ## Exercise
 
 1. Build and run `race_demo.c` exactly as shown, confirm you see a similar

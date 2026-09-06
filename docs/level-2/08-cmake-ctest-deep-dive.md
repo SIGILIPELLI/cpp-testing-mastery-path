@@ -266,6 +266,36 @@ exclusive tests `RUN_SERIAL TRUE` rather than dropping back to `-j1`.
 | Never run in parallel | `RUN_SERIAL TRUE` |
 | Machine-readable report | `--output-junit res.xml` |
 
+## How It Actually Works: CTest's model is just properties on a test-name string
+
+CTest has no knowledge of GoogleTest, CMocka, or C++ at all — it stores a flat
+table of `{name, command, properties}` records and everything above is CTest
+reading and matching against that table.
+
+- **`add_test(NAME foo COMMAND ...)` writes one row.** `set_tests_properties`
+  attaches key/value pairs to that row (`TIMEOUT`, `LABELS`, `WILL_FAIL`,
+  `PASS_REGULAR_EXPRESSION`...). When you run `ctest`, it's doing nothing more
+  exotic than: filter rows by `-R`/`-L` regex/label match against the `name`
+  and `LABELS` fields, then for each surviving row fork the `COMMAND`,
+  capture stdout/stderr, apply the property checks (regex match against
+  captured output, exit-code check flipped if `WILL_FAIL`), and mark
+  pass/fail. `ctest -N` is the same filtering step with the fork skipped.
+- **`FIXTURES_SETUP`/`FIXTURES_REQUIRED` builds a small dependency graph, not
+  a special execution mode.** CTest topologically orders tests so a fixture's
+  setup test runs before, and its cleanup test after, every test that
+  declares it as required — under `-j`, this constrains the scheduler exactly
+  the way a Makefile's dependency edges constrain parallel `make -j`, so two
+  tests without any fixture relationship remain free to interleave.
+- **`--repeat until-fail:20` and `--schedule-random` target genuine race
+  conditions by perturbing OS-level scheduling, not by changing your code.**
+  Repeating a test 20 times gives a flaky data race (e.g. an unsynchronized
+  static, or a std::thread joined without a barrier) 20 independent chances
+  for the OS scheduler to interleave instructions differently; randomizing
+  the run order additionally perturbs cache state and inter-test timing
+  between otherwise-independent binaries — neither flag does any static
+  analysis, they simply increase the sample size of real, non-deterministic
+  process scheduling until a rare interleaving shows itself.
+
 ## Exercise
 
 Take a small library of your own — the `textkit` above, or your Level 1 project.

@@ -193,6 +193,40 @@ without re-touching branch protection settings each time.
 | How many blocking checks? | Roll them into one `merge-gate` job dependent on the real checks, for a single clear signal |
 | How do I introduce a new gate without backlash? | Set the threshold near current reality, explain the "why," ratchet over time |
 
+## How It Actually Works: computing a coverage *delta* on changed lines only
+
+"Delta-on-changed-lines" coverage is a specific diff-plus-report intersection
+computation, and knowing the mechanism explains why it's more precise than a
+floor.
+
+- **It starts from the same `.gcno`/`.gcda` per-line hit-count data from
+  Level 2 Module 6** — nothing about how coverage is *measured* changes.
+  What changes is what's *reported*: instead of reducing the whole report to
+  one aggregate percentage, the gate takes the unified diff of the PR (`git
+  diff --unified=0 main...HEAD`, which reports exactly which line numbers in
+  which files were added or modified) and intersects that set of line
+  numbers with the coverage report's per-line hit counts, restricted to just
+  those files.
+- **This intersection is why a delta gate resists the "assertion-free test"
+  gaming trap better than a floor, but not perfectly.** A floor gate only
+  cares about the aggregate ratio, so padding coverage anywhere in the
+  codebase (including old, easy-to-executed-but-never-asserted code) can
+  satisfy it. A delta gate restricts the denominator to lines the PR itself
+  touched, so gaming it means specifically executing (with or without real
+  assertions) the new/changed lines — a narrower and more visible target for
+  review, though still not proof the new lines are *correctly* tested, only
+  that they executed.
+- **Rolling multiple blocking checks into one `merge-gate` job is a
+  dependency-graph trick in the CI system, not a policy simplification
+  alone.** The `merge-gate` job declares a dependency on each real check job
+  (unit tests, sanitizers, static analysis) and does nothing itself but
+  succeed if all its dependencies succeeded; branch protection then only
+  needs to require that one job. This means adding or removing an underlying
+  check never requires touching the branch-protection configuration — only
+  the `merge-gate` job's own dependency list — which is the mechanical
+  reason it stays "one clear signal" even as the individual checks evolve
+  underneath it.
+
 ## Exercise
 
 1. Adapt the `quality_gate.py` script to read real coverage output (from

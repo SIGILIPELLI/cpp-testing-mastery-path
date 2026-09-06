@@ -361,6 +361,38 @@ gcc -fsanitize=thread -Iinclude src/cache.c tests/test_cache_concurrency.c \
 # ./fuzz_parser -max_total_time=60 fuzz/corpus/
 ```
 
+## How It Actually Works: why ASan and TSan can't be combined in one binary
+
+Notice the pipeline above compiles two *separate* binaries — one with
+`-fsanitize=address,undefined`, another with `-fsanitize=thread` — rather
+than one binary with all three. This isn't pipeline sprawl for its own sake;
+it's forced by how the sanitizers implement themselves.
+
+- **Both ASan and TSan need exclusive control of the same resources**: a
+  large reserved region of virtual address space for their respective shadow
+  memory, and interception of the same allocator entry points (`malloc`,
+  `free`, `mmap`) to keep their shadow state synchronized with real
+  allocations. ASan's shadow layout and TSan's shadow layout are each
+  designed assuming they are the *only* sanitizer instrumenting the binary;
+  running both means two independent runtimes racing to intercept the same
+  allocator and reserve overlapping address ranges, which is why the
+  toolchains refuse the combination outright rather than silently producing
+  wrong shadow state.
+- **This is also why the CI matrix in Module 6 runs *jobs*, not one universal
+  build** — a real pipeline needs a normal build (fast, for day-to-day
+  correctness), an ASan+UBSan build (memory/language-rule safety), and a
+  separate TSan build (data-race detection), because "maximum instrumentation
+  in one binary" is not an available point on the trade-off curve; the
+  underlying shadow-memory mechanisms are mutually exclusive by design, not
+  just by convention.
+- **The `-> Structural only` line for the fuzzer isn't a cop-out — it names a
+  real dependency this project's host build cannot satisfy.** `libFuzzer`
+  requires `-fsanitize=fuzzer`, which needs Clang's fuzzer runtime linked in;
+  a host without that runtime (or a from-scratch GCC-only toolchain) simply
+  can't produce that binary, which is exactly the same class of tooling
+  dependency Module 4 flagged when contrasting host-only builds against a
+  CI image built specifically to include the sanitizer/fuzzer runtimes.
+
 ## Stretch goals
 
 - Add a checksum byte to the message format (as suggested in module 04's

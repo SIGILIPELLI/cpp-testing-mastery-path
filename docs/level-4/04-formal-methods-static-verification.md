@@ -204,6 +204,48 @@ directly, without needing the unlucky schedule to occur at all.
 | Is this the right component to formally verify at all? | Small, stable, high-consequence, precisely-statable property (section 4) |
 | Does a passing proof mean the code is "correct"? | Only correct relative to the stated specification — see traps |
 
+## How It Actually Works: from C source to a SAT solver's yes/no
+
+CBMC's "symbolic, unconstrained" execution from section 2 is a concrete
+translation pipeline, not a metaphor — this is the mechanism that turns your
+C function into something a solver can answer.
+
+1. **Loop unwinding turns your program into a straight-line (loop-free)
+   formula.** CBMC replaces every loop with `--unwind N` copies of its body
+   plus an assertion that the loop actually terminated within N iterations
+   (the "unwinding assertion"). This is mechanically necessary because the
+   next step needs a finite, loop-free control-flow graph — it's also
+   exactly why the bound is a real limitation: a bug that only manifests on
+   the 11th iteration is invisible to `--unwind 10` because that execution
+   path was never even encoded into the formula.
+2. **Every variable becomes a symbolic bitvector, and every operation becomes
+   a logical constraint over those bitvectors.** Instead of running the
+   function on a concrete input, CBMC represents an `int` as 32 unconstrained
+   boolean bits, and represents `x + y` as the circuit-level constraint that
+   the standard binary-addition logic (with carries) would impose on those
+   bits — this is the same bit-level modeling a hardware description
+   language uses, which is not a coincidence: CBMC descends from
+   hardware-verification tooling.
+3. **The whole function, plus a negated version of your assertion, becomes
+   one giant Boolean satisfiability (SAT) formula.** CBMC asks: "is there any
+   assignment of the input bitvectors that satisfies all the control-flow
+   and data constraints *and* makes the property false?" It hands that
+   formula to a SAT (or SMT, for richer types) solver — the same class of
+   solver used in chip design verification — which either returns
+   **UNSAT** ("no such input exists — the property holds for every possible
+   input within the unwind bound") or **SAT** with a concrete satisfying
+   assignment, which CBMC translates back into an actual C counterexample:
+   specific input values and the specific execution trace that violates your
+   assertion.
+4. **This is why a CBMC "proof" is really "proof, conditioned on the unwind
+   bound being sufficient," and why it scales by state-space size rather than
+   by code size** — the SAT formula's size grows with the number of distinct
+   execution paths and the width of the symbolic values involved, which is
+   why formal verification tools target small, isolated functions: the
+   formula for a whole subsystem with many interacting components becomes too
+   large for any solver to decide in practical time, the literal mechanism
+   behind "state space explosion."
+
 ## Exercise
 
 1. Write a CBMC-style harness (as in section 2, even without running it)

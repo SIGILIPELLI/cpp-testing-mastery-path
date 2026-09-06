@@ -195,6 +195,40 @@ traceability matrix specifically only accounts for the first.
 | What does an orphan test mean? | Possibly testing a stale or undocumented requirement — worth review |
 | Does this replace other testing techniques? | No — it's one more source of test cases, layered on the same infrastructure |
 
+## How It Actually Works: generating a traceability matrix instead of maintaining one
+
+A traceability matrix built by hand rots the moment a test is renamed or a
+requirement is renumbered — the working version of this practice is a
+generated artifact produced by scanning two independent, machine-readable
+sources and computing a join.
+
+- **The requirement ID has to be embedded as a token the test source
+  actually carries at build/parse time**, not just documented in a wiki next
+  to it — commonly a comment annotation (`// @req REQ-042`) or a GoogleTest
+  suite/case name convention (`TEST(REQ042_Suite, ...)`) that a script can
+  extract with a regex over the source tree, or (more robustly) a custom
+  attribute registered via GoogleTest's `RecordProperty()` API, which
+  attaches arbitrary key/value metadata to a `TestInfo` at runtime and shows
+  up in the JUnit XML export from Level 1 Module 9 — meaning the same XML
+  file already flowing into your CI dashboard can double as the traceability
+  data source with no separate scan needed.
+- **Building the matrix is a set join, not a lookup table someone fills in.**
+  A generator script reads the full list of requirement IDs from the
+  requirements document (or a structured export of it) as set R, reads the
+  set of requirement-ID annotations actually present across the test suite
+  as set S (via the regex/RecordProperty scan above), and computes: `R - S`
+  (requirements with no annotated test — an orphan requirement, a genuine
+  gap) and `S - R` (annotated tests referencing an ID that no longer exists
+  in R — an orphan test, evidence of a stale or renumbered requirement). This
+  is exactly a two-set difference computation; there is no manual matching
+  step to get wrong once the annotation convention is enforced consistently.
+- **This is why "encode IDs at the source" beats a separately-maintained
+  spreadsheet mechanically, not just organizationally**: the moment a test is
+  deleted, renamed, or a requirement renumbered, the *next* CI run's
+  generated matrix reflects that automatically, because the matrix is
+  recomputed from the current state of both sets on every run rather than
+  being an artifact someone has to remember to update by hand.
+
 ## Exercise
 
 1. Write three requirements (`REQ-...` style) for the `BoundedStack` from

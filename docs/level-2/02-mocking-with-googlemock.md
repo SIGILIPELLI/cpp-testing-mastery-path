@@ -249,6 +249,48 @@ EXPECT_CALL(up, put(Truly([](const std::string& s){ return s.size() < 1024; })))
 | Fail on uninteresting calls | `StrictMock<M>` |
 | Verify early | `Mock::VerifyAndClearExpectations(&m)` |
 
+## How It Actually Works: how `MOCK_METHOD` intercepts a call via the vtable
+
+Mocking a C++ interface works because virtual dispatch is already a runtime
+indirection — GoogleMock just puts its own function at the other end of it.
+
+1. **A virtual call is a pointer lookup, not a direct call.** Any object with
+   virtual methods carries a hidden vtable pointer as its first member. Every
+   `obj->VirtualMethod(args)` compiles to: load the vtable pointer from
+   `obj`, load the function pointer at that method's fixed slot index in the
+   vtable, then call through that pointer. The compiler decided the *slot
+   index* at compile time from the class declaration, but the *address stored
+   at that slot* is decided at object-construction time. That's the entire
+   seam mocking exploits.
+2. **`MOCK_METHOD(R, Name, (Args...), (overrides))` generates an override that
+   points that vtable slot at GoogleMock's machinery instead of your logic.**
+   The macro expands into a real `Name(Args...) override` method whose body
+   calls `GMOCK_MOCKER_(...)->Invoke(...)`. Because it's declared `override`
+   on a method whose interface base class declared it `virtual`, constructing
+   a `MockFoo` object naturally writes GoogleMock's `Name` into the same
+   vtable slot the real `Foo` would have used — no linker tricks, no
+   monkey-patching, just ordinary C++ dynamic dispatch pointed at generated
+   code.
+3. **This is exactly why GoogleMock can only mock virtual methods (or, with
+   more setup, template-parameterized seams) and not arbitrary free functions
+   or non-virtual methods** — a non-virtual call is resolved statically at
+   compile time by name, with no indirection to intercept. It's the same
+   reason Level 1's CMocka module needed a *manual* function-pointer or
+   `#ifdef` seam for C: C has no vtable to hijack, so the seam has to be built
+   by hand instead of being a free side effect of the language's dispatch
+   mechanism.
+4. **`EXPECT_CALL` builds an expectation object that `Invoke()` consults at
+   call time.** Each `EXPECT_CALL` registers a `{matcher, cardinality,
+   actions}` tuple on the mock. When the intercepted call fires, GoogleMock's
+   `Invoke()` walks the mock's registered expectations (in an order that
+   depends on `InSequence` blocks), finds the first unsatisfied match, applies
+   its `WillOnce`/`WillRepeatedly` action to compute a return value, and
+   increments that expectation's call count — which is also the data
+   structure `Times()` cardinality checks are validated against when the mock
+   is destroyed or `VerifyAndClearExpectations` runs. An "uninteresting call"
+   warning fires precisely when `Invoke()` finds no matching expectation at
+   all.
+
 ## Exercise
 
 Build a small `BackupService` and test it entirely with mocks.

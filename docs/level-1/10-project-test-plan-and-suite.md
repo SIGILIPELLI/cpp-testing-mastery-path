@@ -346,6 +346,32 @@ Note that "cases automated" can legitimately exceed "cases planned": writing
 the code surfaces cases the plan missed. **Feed those back into the plan** —
 that back-and-forth is the actual job.
 
+## How It Actually Works: what that `ctest` summary line is really counting
+
+The `100% tests passed, 0 tests failed out of 15` line is CTest reading its
+own bookkeeping, not re-inspecting your code:
+
+- Each of the 15 lines corresponds to one registered `add_test()` — CTest
+  forked a process for each, waited for it to exit, and recorded the exit
+  code. "15 tests" here is a count of process launches, not a count of
+  `TEST()` macros unless you happen to have exactly one CTest registration per
+  GoogleTest case (many projects register one CTest test per *binary*, which
+  then runs many GoogleTest cases inside it — check which shape yours uses,
+  since it changes what a single row in this table represents).
+- The `0.00 sec` timings come from CTest wrapping each fork in a wall-clock
+  timer (`gettimeofday`/`QueryPerformanceCounter` under the hood) — they
+  measure process lifetime, including process startup overhead, which is why
+  a huge number of tiny tests in separate binaries is slower in aggregate than
+  the same assertions inside fewer GoogleTest binaries with one process
+  startup each.
+- The deliberate-bug exercise below works because of the registry mechanism
+  from Module 7: changing `>` to `>=` doesn't touch the test binary's
+  structure at all — the same registered `TestInfo` list runs, but now one
+  `TestBody()`'s embedded comparison produces a different boolean, which
+  `AddTestPartResult` records as a failure that CTest's exit-code check
+  reports up the chain. Nothing about the test count changes; only one bit of
+  status flips.
+
 ## Stretch goals
 
 - Introduce a deliberate bug (change `>` to `>=` in `LongestWord`) and confirm

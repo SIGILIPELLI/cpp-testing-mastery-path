@@ -528,6 +528,47 @@ them is that a failure names which behaviour broke.
 | Asserting on implementation details | Test breaks on every refactor | Assert on the public contract |
 | Writing the test after seeing the output | Certifies the bug (Module 2) | Derive expectations from requirements |
 
+## How It Actually Works: what `TEST()` actually expands into
+
+`TEST(SuiteName, CaseName) { ... }` looks like it declares a function that
+some magical runner later "finds." It doesn't — it's ordinary C++ doing
+static registration, and you can trace every step.
+
+1. **`TEST()` is a macro that defines a class.** It expands (simplified) to a
+   class `SuiteName_CaseName_Test` deriving from `::testing::Test`, with your
+   `{ ... }` body becoming the override of its `TestBody()` virtual method.
+   Your test code is not a free function at all — it's a method on a
+   generated class.
+2. **A static object registers that class at static-initialization time.** The
+   macro also emits a namespace-scope object whose constructor runs *before*
+   `main()`, during C++ static initialization. That constructor calls
+   `::testing::UnitTest::GetInstance()->parameterized_test_registry()` (in
+   spirit — the exact API is `MakeAndRegisterTestInfo`), handing the registry a
+   factory function that can construct your test class. This is why you never
+   call your tests by name anywhere — every `TEST()` macro silently inserts
+   itself into a global list purely as a side effect of the program loading.
+3. **`RUN_ALL_TESTS()` iterates that registry, not your source.** At runtime it
+   walks every registered `TestInfo`, and for each one: constructs a fresh
+   instance of your generated test class (so member fixtures are per-test,
+   never shared), calls `SetUp()`, calls `TestBody()`, calls `TearDown()`, then
+   destroys the instance. A fresh instance per test is precisely why fixture
+   member variables can't leak state between tests — construction/destruction
+   guarantees a clean slate that manual global variables do not.
+4. **`EXPECT_*` and `ASSERT_*` differ by what they do to control flow, not by
+   what they check.** Both macros perform the same comparison and, on failure,
+   record it via `AddTestPartResult` (which is what makes the result show up
+   red without touching `errno` or throwing). The difference is `ASSERT_*`
+   macros additionally expand to a bare `return;` on failure — that's a literal
+   `return` statement injected into your `TestBody()`, which only works because
+   `TestBody()` returns `void`; it's why you can't use `ASSERT_*` inside a
+   helper function that returns a real value without wrapping it or using
+   `ASSERT_NO_FATAL_FAILURE`.
+5. **Fixture inheritance is why `SetUp()`/`TearDown()` exist at all.** A test
+   fixture is just a subclass of `::testing::Test`; GoogleTest's generated test
+   classes derive from *your* fixture instead of `::testing::Test` directly, so
+   the same construct/`SetUp`/body/`TearDown`/destruct sequence from point 3
+   naturally runs your setup and teardown — there's no separate hook mechanism.
+
 ## Exercise
 
 Extend the project from Module 6 with a real GoogleTest suite.

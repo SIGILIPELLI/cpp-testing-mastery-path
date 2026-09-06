@@ -318,6 +318,40 @@ jobs:
 # the full ci.yml pipeline above
 ```
 
+## How It Actually Works: the capstone pipeline as one dependency graph
+
+The `merge-gate` job's `needs: [...]` list is the same CI dependency-graph
+mechanism from Level 3 Module 6 and Level 4 Module 8, but it's worth seeing
+the whole capstone pipeline as a single instance of every mechanism this
+path has built, in one place:
+
+- **`unit-tests`** exercises the registry-and-exit-code contract from Level 1
+  Module 7 — a fresh process per test class, aggregated to one exit code.
+- **`sanitized-and-concurrency`** runs the *same* source under ASan's
+  shadow-memory instrumentation and TSan's vector-clock happens-before
+  tracking (Level 2 Module 4, Level 3 Module 8) — necessarily as separate
+  binaries, per this level's Module 10 note on why the two runtimes can't
+  share one build.
+- **`static-analysis`** runs symbolic/AST-level reasoning over all statically
+  reachable paths (Level 2 Module 9) without executing anything — the one
+  job in the graph that can flag a bug none of the dynamic jobs' test inputs
+  happen to reach.
+- **`traceability-and-quality-gate`** computes the set-difference join
+  between requirement IDs and annotated tests (Level 4 Module 3), and the
+  delta-coverage intersection against the PR's changed lines (Level 4
+  Module 8) — both pure data-processing steps over artifacts the other jobs
+  already produced, adding no new test execution of their own.
+- **`merge-gate` itself runs no checks** — it exists purely so branch
+  protection has one stable node to depend on while the real jobs
+  underneath it can be added, removed, or reordered without ever touching
+  the repository's branch-protection settings, exactly as described in
+  Level 4 Module 8.
+
+Seen this way, the capstone isn't a new set of techniques — it's the same
+handful of mechanisms (registry + exit code, shadow memory, vector clocks,
+symbolic AST analysis, set-difference joins, and CI dependency graphs) from
+every earlier module, composed into one pipeline operating on one codebase.
+
 ## Stretch goals
 
 - Extend `check_traceability.py` (module 03) to recognize non-`MT_TEST`

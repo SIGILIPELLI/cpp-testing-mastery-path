@@ -237,6 +237,33 @@ most one failure. Prefer many small tests over one long one.
 | Assertions after the first failure | Never run (longjmp) | Split into separate tests |
 | `mock()` cast to the wrong width | Garbage values on 64-bit | Use `mock_type(T)` / `mock_ptr_type(T)` |
 
+## How It Actually Works: `mock()`'s queue and `--wrap`'s link-time trick
+
+- **`will_return`/`mock()` is a `uintptr_t` FIFO keyed by function name.**
+  Internally CMocka keeps a hash table from symbol name to a linked list of
+  queued values; `will_return(fn, v)` casts `v` to a `uintptr_t` and appends
+  it, `mock()` pops the front and casts it back. Because everything is
+  smuggled through a pointer-width integer, `mock()` cast to the wrong
+  width — say, reading a `long` you pushed as an `int` on a 64-bit LP64
+  platform — reads garbage high bits rather than failing to compile; there is
+  no type safety here at all, which is exactly why `mock_type(T)` exists as a
+  thin casting wrapper to centralize that risk in one place.
+- **`expect_*`/`check_expected` work the same way but store a matcher
+  descriptor instead of a return value**, and `check_expected` also records
+  a fatal failure via `longjmp` (same mechanism as Level 1's Unity module) if
+  the queue for that symbol is empty when called — which is why a stray extra
+  call to a mocked function shows up as "no entries for symbol", not as a
+  silent no-op.
+- **`--wrap=symbol` is a GNU linker (`ld`) feature, not a CMocka feature.** At
+  link time, `-Wl,--wrap=malloc` rewrites every *undefined* reference to
+  `malloc` in your object files to `__wrap_malloc`, and rewrites any call to
+  the *real* `malloc` to `__real_malloc` instead — this is pure symbol-table
+  surgery performed by the linker before the binary is even fully formed. It
+  has nothing to do with vtables or macros; it only exists on linkers that
+  implement this flag (GNU `ld`/`gold`; not Apple's linker), which is exactly
+  why it silently isn't available on macOS/Clang's default toolchain and a
+  manual function-pointer seam is the portable alternative.
+
 ## Exercise
 
 Test a small ring buffer that allocates its storage and reads from a hardware

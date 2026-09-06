@@ -460,6 +460,35 @@ Run this against any C/C++ project's test setup:
 - [ ] Skipped and disabled tests are listed and reviewed
 - [ ] Adding a new test file is a one-line change
 
+## How It Actually Works: how a test binary decides what "ran" means
+
+- **A GoogleTest binary is a single process that reports many results.**
+  `--gtest_filter`, `--gtest_shuffle`, and `--gtest_repeat` are all handled
+  entirely inside that one process, before `RUN_ALL_TESTS()` walks the
+  registry from Module 7 — filtering just skips constructing/running matching
+  `TestInfo` entries, and shuffling reorders the same array with a
+  seeded PRNG so `--gtest_shuffle --gtest_random_seed=N` is reproducible.
+  Parallelism across *files* (`-j` in CTest) instead spawns multiple whole
+  processes, because GoogleTest itself is single-threaded per invocation.
+- **CTest's parallelism is OS-level process concurrency, not thread
+  scheduling inside your test binary.** `ctest -j8` forks up to 8 child
+  processes at once, each running one registered test executable to
+  completion, and multiplexes their stdout/stderr back to the terminal. This
+  is exactly why "tests depend on the working directory" or "tests write to
+  the same file" break under `-j` but pass serially — two OS processes racing
+  on the same inode is a real filesystem race, not a testing-framework quirk.
+- **A timeout is enforced by the runner killing the child, not by the test
+  cooperating.** CTest's `TIMEOUT` property starts a wall-clock timer when it
+  forks the test process and sends `SIGKILL` (or the platform equivalent) if
+  the process hasn't exited by then — the hung test never gets a chance to
+  clean up, which is why a suite that leaks a lock file or IPC handle on
+  timeout will make the *next* run fail too.
+- **JUnit XML export is a format translation, nothing more.** `--gtest_output=xml`
+  or CTest's `--output-junit` walks the same in-memory result data structure
+  that would otherwise print to your terminal and serializes it as
+  `<testsuite><testcase>` elements — CI dashboards read that XML because it's
+  a de facto standard, not because anything about the test execution changes.
+
 ## Exercise
 
 Take the project you built across Modules 6–8 and turn it into a properly

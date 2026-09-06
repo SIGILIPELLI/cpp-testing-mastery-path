@@ -305,6 +305,34 @@ this week and one that sits in triage.
 | Emotional language | Reduces your credibility and the report's shelf life |
 | Filing without searching for duplicates | Noise; splits the discussion across two threads |
 
+## How It Actually Works: what a crash report is actually made of
+
+Section 5's "reporting C/C++ crashes" advice rests on a real mechanism worth
+naming explicitly.
+
+- **A signal, not an exception, is what actually happens.** A null-pointer
+  dereference or out-of-bounds write doesn't throw — the CPU's memory
+  management unit raises a hardware fault, the OS turns that into a signal
+  (`SIGSEGV`, `SIGBUS`, `SIGILL`, `SIGFPE` for integer division by zero), and
+  the default disposition of that signal is to terminate the process and,
+  where enabled, write a core file. There is no C++ exception object to catch
+  — `catch (...)` never sees a segfault.
+- **A stack trace is a walk of saved return addresses.** Each function call
+  pushes a return address (and, in a frame-pointer build, a saved frame
+  pointer) onto the stack. A backtrace tool (`gdb`, `addr2line`, a crash
+  handler installed via `signal()`/`sigaction()`) walks that chain of saved
+  frame pointers back to `main`, then resolves each address to a
+  function/line using the binary's debug symbols (`-g`). Strip the symbols or
+  build with heavy inlining and the trace degrades to raw addresses — which
+  is exactly why a good bug report states the exact build flags used.
+- **"Cannot reproduce" is frequently a real difference in memory layout.**
+  Two builds with different optimization levels, ASLR, or even a different
+  environment variable's length can shift stack/heap addresses enough that a
+  latent out-of-bounds write corrupts a different, non-fatal byte — which is
+  why an environment-free repro is close to worthless for memory bugs, and
+  why later modules reach for ASan/Valgrind to make such corruption
+  deterministic and location-precise instead of address-dependent.
+
 ## Exercise
 
 Return to the `average()` function from Module 1's exercise:

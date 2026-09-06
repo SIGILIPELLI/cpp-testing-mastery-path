@@ -164,6 +164,38 @@ additional evidence.**
 | Can I trust this analysis tool's output as evidence? | Only if it (or its use) is qualified (section 5) |
 | What's actually different at a higher assurance level? | A specific, enumerated evidence bar — not "more effort" in the abstract |
 
+## How It Actually Works: how a MISRA checker proves a rule, mechanically
+
+- **A MISRA rule is checked the same way clang-tidy checks any rule — by
+  pattern-matching over the AST/CFG (Level 2 Module 9) — but MISRA rules are
+  chosen specifically because they eliminate constructs whose *meaning*
+  static analysis (or a human) cannot fully pin down.** Rule 10.1 (no
+  implicit conversions between "essentially different" types) exists because
+  C's implicit conversion rules are numerous and easy to misjudge by eye; a
+  checker can enumerate every implicit conversion in the AST and flag ones
+  outside the permitted matrix, which is a purely syntactic check requiring
+  no execution.
+- **"Coverage" under DO-178C/ISO 26262 is measured with the same `.gcno`/
+  `.gcda` control-flow-edge instrumentation from Level 2 Module 6, extended
+  to distinguish individual boolean sub-conditions rather than just
+  branches.** An MC/DC-capable coverage tool instruments each atomic
+  condition inside a compound decision separately (not just the overall
+  true/false outcome of the `if`), which is why ordinary `lcov` — built for
+  line/branch coverage — cannot report MC/DC directly: its instrumentation
+  granularity stops at the branch, one level short of what MC/DC needs.
+- **Tool qualification is really a claim about the tool's own test suite, not
+  about your code.** A "qualified" static analyzer or compiler has itself
+  been through documented verification proving it doesn't silently
+  mis-report a violation as clean, or (for a compiler) doesn't generate
+  incorrect object code from correct source — because if the tool used to
+  produce your evidence is unreliable, every artifact it generated is
+  suspect regardless of how rigorous your own process was. This is why
+  standards distinguish a "verification tool" (whose output is cross-checked
+  by another means, so it needs less qualification) from a "development
+  tool" whose output ships directly (needing full qualification) — the
+  qualification burden tracks how directly the tool's own correctness
+  becomes your code's correctness.
+
 ## Exercise
 
 1. Take one function from an earlier module in this path (e.g. `frame_parse`

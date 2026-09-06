@@ -191,6 +191,45 @@ narrower `int`.
 | Alignment faults | `-Wcast-align` | QEMU/HIL — genuinely needs the target's actual fault behavior |
 | Minimal-libc gaps | Review target libc docs for missing functions | Attempt an actual cross-compile; link errors surface gaps immediately |
 
+## How It Actually Works: why "int" isn't the same 4 bytes everywhere
+
+Every risk in the cheat sheet above traces back to the C/C++ standard
+deliberately leaving these properties implementation-defined rather than
+fixed — the compiler and target ABI, not the language, decide the actual
+representation.
+
+- **Integer width is a target-ABI decision, not a language guarantee.** The
+  standard only guarantees minimum ranges (`int` is at least 16 bits); a
+  given target's ABI document fixes the actual width (commonly 32-bit `int`
+  on both hosts and most embedded targets today, but *not* guaranteed, and
+  historically real on 16-bit MCU toolchains). `-Wconversion` flags any
+  implicit narrowing conversion because the compiler can see, at compile
+  time, that the destination type's width (as defined by *that* target's ABI)
+  is smaller than the source — the warning is silent on a host build purely
+  because the host's `int` happens to be wide enough to hold the values your
+  test data exercises.
+- **Endianness is a hardware-defined byte-ordering convention for multi-byte
+  values in memory, invisible at the C source level.** `uint32_t x = 0x01020304;`
+  produces different byte sequences in memory on a little-endian target
+  (04 03 02 01) versus a big-endian one (01 02 03 04) — reading or writing
+  that memory through anything except the same integer type (a raw byte
+  buffer, a network packet, a file format) exposes this difference directly.
+  This is exactly why byte-explicit serialization (`buf[0] = x & 0xFF; buf[1]
+  = (x >> 8) & 0xFF; ...`) is portable and struct-overlay serialization isn't:
+  the byte-explicit version encodes the byte order as source code logic,
+  identical on every target, while overlaying a struct onto a byte buffer
+  inherits whatever byte order the target's hardware happens to use.
+- **Struct padding and alignment come from the ABI's rules for where each
+  member must start in memory**, chosen so the CPU's load/store instructions
+  can access each field without a fault or a performance penalty — a target
+  requiring 4-byte alignment for `int` will insert padding bytes before an
+  `int` member that follows a `char`, and a *different* target with different
+  alignment rules inserts different padding, so `sizeof(struct Foo)` and the
+  byte offset of each member can genuinely differ across the exact same
+  source compiled for two targets, which is why `objdump`/`nm` inspection of
+  the actual cross-compiled binary — not a host build's layout — is the only
+  way to verify the wire format matches what you intended.
+
 ## Exercise
 
 1. Take `pack_two_fields` from section 3, compile and run it as shown, then

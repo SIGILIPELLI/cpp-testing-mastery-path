@@ -218,6 +218,44 @@ Keep it a **separate build directory**. Sanitizer binaries are slower and have
 different ABI characteristics; you want the normal build for day-to-day work and
 the instrumented one on demand and in CI.
 
+## How It Actually Works: shadow memory vs. a synthetic CPU
+
+ASan and Valgrind catch the same bugs from two completely different
+mechanisms, and knowing which is which explains their speed and precision
+differences.
+
+- **ASan compiles extra checks directly into your program (compile-time
+  instrumentation).** For every memory access the compiler emits, in
+  addition to the real load/store, a check against a **shadow memory**
+  region — a separate area of address space where each 8 real bytes are
+  represented by one shadow byte. That shadow byte encodes how many of the 8
+  bytes are addressable (0 = all 8 valid, N = only the first N valid,
+  negative-tagged = "redzone", i.e. poisoned padding ASan inserts around every
+  heap/stack/global allocation). Before a load or store, injected code
+  computes `shadow_addr = (real_addr >> 3) + offset` and checks that byte; if
+  the check fails, it calls into the ASan runtime to print the report and
+  abort. This is why ASan is "only" ~2x slower — it's still your compiled
+  code running natively, just with an inline check bolted onto each access —
+  and why it needs `-fsanitize=address` at *compile* time: the instrumentation
+  is baked into the object code, not applied afterward.
+- **Valgrind instead runs your unmodified binary inside a software CPU
+  (dynamic binary instrumentation).** Memcheck translates your program's
+  machine code into an intermediate representation, adds its own shadow-value
+  and shadow-validity tracking around every operation, then re-translates
+  that back to machine code and executes it in Valgrind's own synthetic
+  execution engine — nothing runs directly on the real CPU. This is why
+  Valgrind needs no recompilation (it works on any binary, even ones you
+  didn't build) and why it's 10-50x slower rather than ASan's ~2x: every
+  single instruction is being emulated, not just augmented.
+- **A redzone is what actually turns "off-by-one" into "instantly caught."**
+  ASan pads every heap allocation with poisoned bytes on both sides; a
+  one-byte-past-the-end write lands in that redzone's shadow-poisoned region
+  and trips the check on the very write that caused it — this is the
+  mechanical reason ASan reports overflows *at the moment they happen* with
+  an exact stack trace, instead of Valgrind's leak-check-style reports which
+  can only be produced when Memcheck later walks its own tracked allocation
+  table.
+
 ## Exercise
 
 Work from a deliberately broken string library.

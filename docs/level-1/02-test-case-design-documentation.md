@@ -214,6 +214,30 @@ the code is the discipline that separates testing from observing. If you run
 first and record what happened, you will faithfully certify every bug as
 intended behaviour.
 
+## How It Actually Works: why boundary values find bugs mechanically
+
+Boundary value analysis isn't a superstition — it targets the exact places
+where C/C++ integer and comparison semantics actually break.
+
+- **Off-by-one operators compile to different machine instructions.** `<` vs
+  `<=` on a loop bound becomes a different conditional-jump opcode (`jl` vs
+  `jle` on x86). A boundary test at `n` and `n-1` is specifically designed to
+  land on the one input where a wrong comparison operator changes the branch
+  taken — mid-range inputs take the same branch regardless of the bug.
+- **Integer overflow is a boundary, not a random failure.** `INT_MAX + 1` is
+  undefined behaviour in C/C++; a compiler is free to assume it never happens
+  and optimize the surrounding check away entirely. Testing exactly at
+  `INT_MAX`, `INT_MIN`, and `SIZE_MAX` forces the real, compiled behaviour —
+  wraparound, trap, or silently-elided check — to show itself, which is why a
+  test case template always has an explicit "boundary" row rather than relying
+  on "a few random inputs."
+- **Equivalence partitions map to basic-block coverage.** Two inputs are in the
+  same equivalence class precisely when they drive execution through the same
+  sequence of basic blocks in the compiled binary. Picking one representative
+  per partition is a cheap proxy for exercising every distinct code path
+  without enumerating every input — this is the same idea code coverage tools
+  (Level 2) measure directly instead of inferring by hand.
+
 ## Exercise
 
 Take this C function, which is intended to copy a source string into a

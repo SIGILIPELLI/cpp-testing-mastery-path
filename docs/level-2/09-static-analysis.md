@@ -257,6 +257,40 @@ seconds is worth more than the same finding from a forty-minute nightly job.
 | Sanitizers only | Misses the unexecuted error path | Pair with static analysis |
 | Gating a legacy repo from day one | Gate gets disabled | Baseline, then ratchet |
 
+## How It Actually Works: analysis without ever running the program
+
+Static analyzers find bugs by symbolically simulating your program's
+possible states, not by executing it — which is what lets them see paths a
+test suite never reaches, and also what causes their false positives.
+
+- **`compile_commands.json` is why clang-tidy needs `-p`.** clang-tidy is
+  built on the same Clang frontend that compiles your code, so to build an
+  accurate AST it needs the exact same include paths, defines, and standard
+  version your real build uses — the compilation database is literally a
+  JSON record of the exact compiler invocation CMake used for each `.cpp`
+  file. Without it, clang-tidy guesses flags, parses your headers under the
+  wrong assumptions, and reports phantom errors that are really just parse
+  failures, not real findings.
+- **Symbolic execution is how the overflow in §5 gets found without running
+  the code.** Rather than substituting concrete values, the analyzer tracks
+  *value ranges and constraints* per variable along each branch of the
+  control-flow graph — "at this program point, `x` is known to be in
+  `[0, 100]` because of the `if` above." When an operation like `x * y` could
+  produce a value outside the representable range given the tracked
+  constraints, it flags a potential overflow on that specific path, even if
+  no test ever drives `x` and `y` to the exact values that would trigger it
+  at runtime. This is exactly the class of bug sanitizers (Module 4-5) can
+  only catch if a test actually executes the bad values — static analysis
+  and sanitizers are complementary because one reasons about *all possible*
+  values on a path, the other observes *one actual* execution.
+- **`cppcheck`'s and clang-tidy's checks are literally separate passes with
+  independent false-positive rates**, which is why `--enable=all` in CI is a
+  trap: each additional check pass adds its own analysis over the same AST/CFG,
+  and low-confidence checks (style, "possible" null dereference from
+  imprecise alias analysis) drown the small number of high-confidence
+  findings a reviewer would otherwise act on — the fix isn't a smarter tool,
+  it's curating which passes you trust enough to fail the build on.
+
 ## Exercise
 
 1. **Write `buggy.c`** from section 3 and reproduce the cppcheck output exactly.

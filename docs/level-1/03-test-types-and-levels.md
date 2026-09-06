@@ -271,6 +271,32 @@ stream and publishes averaged values.
 | Memory | 72-hour soak with a repeating stream; RSS must be flat. |
 | Security | Fuzz `parse_frame()` with random bytes under ASan — the highest-value single test in this whole table for C/C++ code that parses untrusted input. |
 
+## How It Actually Works: why the four levels are a mechanical hierarchy, not just process
+
+The unit → integration → system → acceptance ladder maps directly onto what is
+actually being linked and executed at each stage.
+
+- **Unit tests link against a single translation unit (or a small handful),
+  with everything else stubbed.** The test binary's link step pulls in the
+  function under test and nothing beyond it — any missing symbol either fails
+  the link or is satisfied by a hand-written stub/mock object file. This is
+  why unit tests are fast: the binary is small and there is no real I/O.
+- **Integration tests change what gets linked, not how tests are written.**
+  The same `TEST()` macros run, but the build now links the real collaborator
+  object files (or a shared library) instead of stubs, so calls cross real
+  ABI boundaries — struct layout, calling convention, and vtable slots must
+  actually agree between components, which is exactly the class of bug unit
+  tests with mocked collaborators cannot see.
+- **System tests exercise the finished, statically or dynamically linked
+  executable as an OS process**, driven through its real entry point (`main`)
+  and real external interfaces (files, sockets, CLI args) — there is no test
+  framework inside the process at all; the "test" is an external harness
+  checking the process's outputs and exit code.
+- **Acceptance tests add nothing new at the machine level** — they are system
+  tests whose expected results are phrased against the requirement/contract
+  instead of the implementation, which is a documentation distinction, not an
+  execution one.
+
 ## Exercise
 
 You are handed a small C++ library, `libconfig`, which:

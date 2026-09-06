@@ -220,6 +220,42 @@ every job.
 | New crashing inputs | `fuzz-smoke` | Yes, once corpus/timeouts are stable |
 | Cross-compiler/standard drift | Matrix build | Yes |
 
+## How It Actually Works: what a CI runner is actually orchestrating
+
+Underneath the YAML, a CI job for a C/C++ suite is just process orchestration
+around the exact same exit-code and file-output contracts from earlier
+modules — nothing about "being in CI" changes what a test binary does.
+
+- **A CI "job" is a fresh container or VM, which is why caching matters.**
+  Each job typically starts from a clean filesystem image; without a build
+  cache, every job re-invokes the full compiler toolchain (parse, optimize,
+  codegen, link) from scratch, which is why cross-compiler matrix builds are
+  slow independent of your test count — you're paying full recompilation
+  cost per matrix cell, not per test.
+- **The runner's own pass/fail for a job is the exit code of the *last shell
+  command*, propagated exactly like a local terminal session.** `ctest
+  --output-on-failure` exits non-zero if any registered test failed; the CI
+  system's job runner checks that shell exit status the same way your local
+  terminal's `$?` does, and marks the whole job red on non-zero — there's no
+  separate "CI understands failure" logic, it's the same convention from
+  Level 1 Module 1 propagated one level further up the process tree (test →
+  ctest → shell → CI runner).
+- **JUnit XML is a lossy but universal handoff format between otherwise
+  incompatible tools.** CTest's exit code alone tells the CI system red/green
+  for the *whole job*; the JUnit XML additionally lets the CI dashboard show
+  per-test names and durations without the dashboard needing to understand
+  GoogleTest's or CMocka's native output format at all — it's the same
+  translation idea as Level 1 Module 9's JUnit export, just consumed by a
+  different downstream reader (a CI UI instead of a human scrolling
+  terminal output).
+- **A matrix build is N independent job graphs sharing one YAML definition,
+  not one job iterating N times.** The CI system expands the matrix
+  declaration into N separate job instances *before* scheduling — each gets
+  its own container, its own full toolchain invocation, and its own
+  pass/fail — which is why a compiler-specific UB difference genuinely
+  surfaces as "job C++20/Clang red, job C++17/GCC green" rather than a single
+  aggregated result.
+
 ## Exercise
 
 1. Write a `ci.yml` for the Level 2 capstone (`instrumented/`) with separate

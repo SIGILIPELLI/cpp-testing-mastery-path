@@ -259,6 +259,36 @@ possible time.
 | Assertion inside a helper | `SCOPED_TRACE` | guessing from the line number |
 | Fatal check inside a helper | `ASSERT_NO_FATAL_FAILURE(Helper())` | bare `Helper()` |
 
+## How It Actually Works: parameterized tests, death tests, and matchers
+
+- **`TEST_P` generates one class, `INSTANTIATE_TEST_SUITE_P` stamps out many
+  registrations from it.** `TEST_P` defines a template-like test class
+  deriving from `::testing::TestWithParam<T>`, with `GetParam()` reading a
+  member the harness sets before each run. `INSTANTIATE_TEST_SUITE_P` is what
+  actually loops over your generator (`Values(...)`, `Range(...)`) at static
+  registration time and registers *one `TestInfo` per parameter value* into
+  the same registry from Level 1 Module 7 — which is why the test count in
+  your output genuinely multiplies, and why each instantiation gets its own
+  name suffix (`/0`, `/1`, ...) baked in at that registration step.
+- **`EXPECT_DEATH` works by forking, because a crash can't be "caught" in the
+  parent.** It calls `fork()` (or on some platforms, a thread + exec), runs
+  your statement in the child, and lets the child's `SIGSEGV`/`abort()` kill
+  *that* process while the parent `waitpid()`s on it and checks the child's
+  exit status and captured stderr against your regex. This is fundamentally
+  different from `EXPECT_THROW` — a real crash never runs any more C++ code
+  in that process, so there is no exception object to catch; the death test
+  literally sacrifices a child process per assertion, which is also why death
+  tests are slow and why GoogleTest insists they live in suites named
+  `*DeathTest` (so you can filter them out of routine fast runs).
+- **`EXPECT_THAT`/matchers are composable predicate objects, not new syntax.**
+  `ElementsAre(1, 2, 3)` constructs a `Matcher<Container>` object whose
+  `MatchAndExplain` method is called with your actual container; matchers like
+  `UnorderedElementsAre` internally run a bipartite-matching algorithm to find
+  *some* assignment of actual elements to expected matchers, which is why it
+  reports a specific unmatched element on failure instead of just "not equal."
+  This same `Matcher<T>` machinery is exactly what GoogleMock (next module)
+  reuses for `EXPECT_CALL(mock, Method(matcher))` argument matching.
+
 ## Exercise
 
 Take the `Statistics` class you built at the end of Level 1 Module 7 (or write a

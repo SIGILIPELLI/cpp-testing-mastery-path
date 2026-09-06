@@ -214,6 +214,38 @@ cannot be connected with certainty.
 | Proof every failure was resolved | Problem reports, each with re-verification evidence | Opened per FAIL, closed only on a new PASS record |
 | Everything ties to one software version | Configuration management (commit hash in every artifact) | Version control, referenced everywhere |
 
+## How It Actually Works: the commit hash as a cryptographic join key
+
+"The git commit hash appears in every artifact" is doing more mechanical
+work than a simple label — it's what makes the evidence chain tamper-evident,
+not just organized.
+
+- **A git commit hash is a SHA-1 (or SHA-256, in newer repos) digest of the
+  commit's content and its parent's hash, recursively.** Because the hash of
+  a commit depends on the hash of every ancestor, changing a single byte
+  anywhere in the tree's history — even in a commit from months earlier —
+  changes that commit's hash, which changes every descendant commit's hash
+  in turn. This is precisely why "the commit hash is in every artifact" is a
+  meaningful integrity claim rather than a bookkeeping convenience: an
+  artifact stamped with hash `H` can be checked against a repository's actual
+  history, and if `H` doesn't correspond to a real commit reachable in that
+  history, the evidence chain is provably broken, not just poorly filed.
+- **Structural coverage and test-result artifacts are only trustworthy if
+  they were generated from a build checked out *at* that exact commit, with
+  no uncommitted local modifications** — a coverage report generated against
+  a working tree with an uncommitted one-line fix reports coverage for code
+  that, strictly, does not correspond to any hash at all, which is why real
+  certification pipelines fail the build if `git status` shows anything
+  dirty before generating evidence, rather than trusting a human to remember
+  to commit first.
+- **This is the same idea as JUnit XML being the untouched CI-generated
+  handoff format in Level 3 Module 6** — "generated from CI's structured
+  output, never hand-transcribed" matters mechanically because a
+  hand-transcribed number has no cryptographic or automated link back to the
+  run that produced it; a generated report retains an unbroken, checkable
+  chain from source commit → CI job → raw tool output → final artifact, with
+  every link machine-verifiable rather than trusted on faith.
+
 ## Exercise
 
 1. Write a test procedure (section 2's format) for one test in your own

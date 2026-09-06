@@ -213,6 +213,41 @@ The last one is especially insidious: GCC and Clang both warn about it, and both
 also *optimise on the assumption it never happens*, so ignoring the warning can
 change control flow elsewhere in the function.
 
+## How It Actually Works: UBSan inserts checks the optimizer would otherwise trust
+
+UBSan's mechanism is compile-time instrumentation like ASan (Module 4), but it
+checks *language-rule violations* rather than memory addresses, which is a
+different and narrower kind of check.
+
+- **The compiler already "knows" where UB can occur — because it exploits it.**
+  Optimization passes routinely reason "signed overflow is UB, so I may assume
+  `x + 1 > x` is always true and delete the branch that handles the false
+  case." `-fsanitize=undefined` hooks into that same compile-time analysis,
+  but instead of *exploiting* the assumption for optimization, it emits a
+  runtime check that verifies the assumption held, before the surrounding
+  optimizations that depend on it are allowed to matter. That's why UBSan and
+  aggressive optimization coexist: the check runs first, and only if it
+  passes does the optimized code (which assumed no UB) execute correctly.
+- **Each UBSan checker targets one specific rule from the C/C++ standard,
+  compiled to a narrow inline guard.** `signed-integer-overflow` inserts an
+  overflow-flag check around `+`/`-`/`*` on signed operands (on x86 this can
+  literally be a check of the CPU's overflow flag after the arithmetic
+  instruction); `shift` checks the shift amount against the operand's bit
+  width before executing the shift instruction, because a shift by ≥ the
+  width is itself UB and many CPUs' shift instructions silently mask the
+  count rather than producing zero; `null` checks a pointer against zero
+  immediately before a dereference or member access, not relying on the
+  hardware fault because plain pointer arithmetic on a null pointer (without
+  a dereference) is also UB and produces no fault at all.
+- **"Missing return" UB is why the check exists independent of any crash.**
+  When control falls off the end of a value-returning function, the actual
+  return value is whatever bit pattern happened to be sitting in the return
+  register or stack slot — there's no fault to catch, because reading garbage
+  isn't a memory-safety violation, it's a *language-contract* violation. UBSan
+  instruments the function's fall-through path specifically to detect this
+  case, which is the clearest illustration that UBSan checks "did the program
+  follow C++'s rules," not "did the program touch memory it shouldn't."
+
 ## Exercise
 
 Build a UB museum and then close it down.

@@ -178,6 +178,44 @@ no OS underneath needs `qemu-system-*` and semihosting as covered above.
 | Target runs embedded Linux, not bare metal? | `qemu-user` (instruction-level, no board model) instead |
 | CI job hangs on a firmware bug? | Wrap the QEMU invocation in `timeout` — no OS supervision otherwise |
 
+## How It Actually Works: dynamic binary translation and semihosting traps
+
+- **QEMU executes target machine code by translating it to host machine code
+  on the fly, not by interpreting it instruction-by-instruction.** Its
+  Tiny Code Generator (TCG) reads a block of target instructions (e.g. ARM
+  Thumb-2 opcodes), translates each into an intermediate representation, then
+  JIT-compiles that IR into native host instructions (x86-64, if you're
+  running QEMU on a typical dev machine), and caches the resulting host code
+  block keyed by the target address. The next time execution reaches that
+  same target address, QEMU runs the cached native translation directly
+  instead of re-translating — this is why a hot loop in emulation runs much
+  faster than a naive interpreter would, and also why QEMU is "instruction-
+  accurate" but not cycle-accurate: it faithfully reproduces the *effects* of
+  each target instruction, but the number of host CPU cycles spent has no
+  fixed relationship to real target hardware timing, which is exactly why
+  Module 3's HIL rig, not QEMU, is required for anything timing-sensitive.
+- **Semihosting is a deliberately-trapped illegal instruction, not a real
+  syscall mechanism.** Real hardware has no host filesystem or host stdout to
+  talk to; semihosting works by having your firmware execute a specific
+  breakpoint/svc instruction with a magic argument, which QEMU's CPU
+  emulation specifically recognizes (rather than treating as a real trap into
+  guest firmware) and intercepts to run host-side code — printing to QEMU's
+  own stdout, or exiting the whole QEMU process with a given code. This is
+  why semihosting only works under an emulator or a debug probe that
+  implements the same convention, and does nothing (or hangs) if that
+  instruction executes on real, unconnected silicon.
+- **A device model is exactly the peripheral's register-level behavior,
+  reimplemented in C inside QEMU** — a UART model is a small state machine
+  that, when the emulated CPU performs a memory-mapped store to the UART's
+  registers, updates internal state and (for a transmit register) forwards
+  the byte to a host-side character device (a file, a socket, or the
+  terminal via `-nographic`). A peripheral with "no QEMU model" isn't a
+  configuration gap — nobody has written that C state machine, so an access
+  to its address space either reads back zero/garbage or reads back
+  whatever a stub default handler returns, which is fundamentally different
+  from a genuine hardware response and exactly why it falls back to real
+  HIL rather than "just needing more QEMU flags."
+
 ## Exercise
 
 1. Sketch the semihosting-based test harness (section 2's shape) for one

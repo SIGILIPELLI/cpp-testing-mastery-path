@@ -384,6 +384,32 @@ When you actually run the cases:
 6. **Re-run the whole affected area after a fix** — the fix is a change, and
    changes cause regressions (Module 3).
 
+## How It Actually Works: C/C++-specific boundaries at the bit level
+
+Section 3's "C/C++-specific boundaries" are not arbitrary extra rows in a
+table — each one corresponds to a concrete representation limit.
+
+- **Integer boundaries are two's-complement wraparound points.** A signed
+  `int` boundary test at `INT_MAX` matters because `INT_MAX + 1` is undefined
+  behaviour by the standard, but on nearly every real compiler it produces the
+  bit pattern for `INT_MIN` — the sign bit simply flips because two's
+  complement has no separate "overflow" state, it just keeps incrementing the
+  bit pattern. Testing at that exact value is testing whether your code
+  assumed arithmetic saturates (it doesn't) or wraps predictably (with `-O2`
+  and UB, it might not even do that).
+- **Buffer boundaries are literally the one-past-the-end address.** A loop
+  bound off-by-one at `array[n]` reads or writes the byte immediately after
+  the allocation. Whether that crashes, corrupts an adjacent variable, or
+  silently "works" depends entirely on what the allocator placed next in
+  memory — which is why the same off-by-one bug can pass on your machine and
+  crash on CI: heap layout differs run to run.
+- **Floating-point boundaries hit representation, not magnitude.** Testing at
+  `0.1 + 0.2` or near `FLT_EPSILON` targets the fact that IEEE-754 cannot
+  represent most decimal fractions exactly — the bug isn't "the number is
+  big," it's that the stored bit pattern is provably not equal to the
+  mathematically expected value, so any test that does exact equality on a
+  float boundary needs a tolerance instead of `==`.
+
 ## Exercise
 
 You are testing this C function:

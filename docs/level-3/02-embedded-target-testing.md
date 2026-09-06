@@ -229,6 +229,37 @@ the host/target split rather than to unit-level fakes.
 | Wire format / protocol framing | Host, with explicit byte-level (not struct-layout) code |
 | Anything using UB-sensitive constructs | Host build compiled with `-fsanitize=undefined` |
 
+## How It Actually Works: why host testing of embedded code is not "cheating"
+
+The host/target split rests on a real fact about compilation, not a
+convenience shortcut.
+
+- **Host and target builds share a frontend but differ in the backend.** GCC
+  and Clang compile your C/C++ source through the same language-level parsing
+  and most middle-end optimization passes regardless of target — a
+  parsing/state-machine bug is a bug in the AST-level logic, and that logic
+  is identical whether the backend later emits x86-64 or ARM Cortex-M
+  instructions. This is precisely why "pure logic" tests are valid on host:
+  the compiler pass that could introduce a target-specific difference (
+  instruction selection, register allocation, calling convention) happens
+  *after* the pass that would expose a logic bug.
+- **A register-access wrapper crosses that boundary because it targets
+  memory-mapped I/O, which the host has none of.** `*(volatile uint32_t*)0x4001000` on
+  a microcontroller reads a real peripheral register wired to hardware
+  state; on your host machine that address is either unmapped (instant
+  segfault) or aliases unrelated process memory — there is no equivalent
+  hardware behind it, so no host test can validate what the peripheral
+  actually does, only that your code issued the correctly-shaped access.
+- **Timing-dependent behavior is inherently a property of the real clock and
+  real interrupt controller, not of your compiled instructions.** An
+  interrupt latency bug depends on the target's actual clock frequency,
+  cache/flash wait states, and NVIC priority hardware — none of which a host
+  process's OS-scheduled threads can reproduce, because host "concurrency" is
+  scheduled by a general-purpose OS scheduler with millisecond-granularity
+  guarantees, not a deterministic microsecond-granularity interrupt
+  controller. This is exactly why such tests can only be trusted on-target
+  or on a cycle-accurate HIL rig (Module 3), never inferred from a host run.
+
 ## Exercise
 
 1. Take the `frame_parse` function and add a checksum field (a one-byte XOR

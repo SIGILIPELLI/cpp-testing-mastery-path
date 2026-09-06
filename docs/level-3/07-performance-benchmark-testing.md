@@ -222,6 +222,48 @@ number of comparisons made to get there.
 | Is the measurement trustworthy? | `--benchmark_repetitions`, aggregate reporting, watch for throttling |
 | Does the growth rate match the algorithm's claimed complexity? | `->Complexity()` with multiple range points |
 
+## How It Actually Works: how a microbenchmark avoids measuring noise
+
+Getting a trustworthy nanosecond-scale measurement out of a modern CPU is
+harder than it looks, and Google Benchmark's design is a direct response to
+specific hardware and compiler behaviors.
+
+- **The optimizer will delete your benchmark if you let it.** If a benchmark
+  computes a value and never uses it, the compiler is entitled to prove the
+  computation has no observable effect and eliminate it entirely (dead-code
+  elimination) — you'd measure an empty loop. `benchmark::DoNotOptimize(x)`
+  works by taking `x` through an inline-assembly statement with an empty
+  effect that the compiler must treat as "this value's memory was read by
+  something opaque," which forces the preceding computation to actually
+  happen — it's a compiler-barrier trick, not a real side effect.
+  `ClobberMemory()` similarly emits an inline-asm memory barrier so the
+  compiler can't reorder/cache stores around it.
+- **The loop count is chosen by the library, not by you, because timer
+  resolution has a floor.** `for (auto _ : state)` runs your code an
+  auto-tuned number of iterations, chosen by first estimating the operation's
+  cost with a short calibration run, then computing how many repetitions are
+  needed for the *total* measured wall-clock time to comfortably exceed the
+  timer's resolution and typical OS scheduling jitter (tens of
+  microseconds). A single iteration of a 2ns operation is unmeasurable noise
+  next to `clock_gettime`'s own overhead; averaging over a million iterations
+  divides that noise down to something meaningful.
+- **`->Complexity()` fits your measured `(N, time)` pairs against candidate
+  growth functions using least-squares regression**, exactly the same
+  curve-fitting idea as fitting a line to scattered data points — it computes
+  a best-fit coefficient for each candidate shape (`O(N)`, `O(N log N)`,
+  `O(N²)`) and reports whichever has the lowest residual sum of squares. A
+  "binary" search whose fit favors O(N) over O(log N) means the *measured
+  wall-clock growth curve* — not a code read-through — proves the algorithm
+  isn't actually bisecting, which is a fundamentally different kind of
+  evidence than a functional test that only checks the returned index.
+- **Repetition and statistics exist because context-switches and CPU
+  frequency scaling are real confounds.** `--benchmark_repetitions=N` reruns
+  the whole benchmark N times and reports median/mean/stddev because a single
+  run can be skewed by the OS scheduler preempting your process mid-measurement
+  or the CPU's dynamic frequency scaling briefly throttling under thermal
+  load — statistics across repetitions is how you separate "the algorithm is
+  slower" from "a neighboring process stole a timeslice."
+
 ## Exercise
 
 1. Write a `BENCHMARK_F` fixture benchmarking three implementations of

@@ -405,6 +405,33 @@ case:
 Every "no" on that list is a finding worth raising — several of them are more
 valuable than any individual test case you could write that week.
 
+## How It Actually Works: compiler warnings and CMake test targets under the hood
+
+- **A warning is the compiler reporting a state its own optimizer already
+  computed.** `-Wall -Wextra` doesn't run a separate analysis pass — most of
+  these diagnostics fall out of the same data-flow and type-checking work the
+  compiler performs anyway while lowering source to its intermediate
+  representation (e.g. LLVM IR for Clang). `-Wuninitialized`, for instance, is
+  reachable because the compiler already tracks definite-assignment state to
+  decide what it can safely optimize; it surfaces that internal fact to you
+  as a diagnostic instead of silently using it only for codegen. That's why
+  warnings can appear or disappear when you change `-O` level — more
+  optimization sometimes proves more about a variable's history.
+- **`-Werror` works by changing the exit code, not the message.** Every
+  diagnostic is internally tagged with a severity; `-Werror` simply reclassifies
+  "warning" severity to "error" severity before the compiler decides whether
+  to emit an object file and what to return from `main()`. CI treating a build
+  as failed is just this exit code propagating through `make`/`ninja`, then
+  through CMake's build step, then through the CI runner's own exit-code check
+  — the same non-zero-exit-is-failure convention from Module 1.
+- **`add_test()` in CMake does nothing more than register a command line.**
+  CTest is not a test framework — it stores, per test, the executable path and
+  arguments to invoke. Running `ctest` forks a child process per registered
+  test, captures its exit code and output, and reports pass/fail from that —
+  identical in spirit to `ctest` calling `system()` in a loop, which is why any
+  program with a meaningful exit code (not just a "real" unit test binary) can
+  be registered as a CTest test.
+
 ## Exercise
 
 Build the project from section 5 on your own machine, then extend it:

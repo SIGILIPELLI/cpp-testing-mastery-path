@@ -215,6 +215,34 @@ only ever passes in file-declaration order is passing by accident.
 | How do I keep it fast? | Shared suite-level fixtures, polling instead of sleeping, parallel partitions |
 | How do I catch state leaks? | Run with `--gtest_shuffle` in CI |
 
+## How It Actually Works: why `--gtest_shuffle` exposes state leaks
+
+`--gtest_shuffle` doesn't analyze your code for shared state — it exploits
+the registry mechanism from Level 1 Module 7 to make hidden dependencies
+observable by brute force.
+
+- **The registry is an ordered array; shuffle just permutes it.** Normally
+  GoogleTest walks `TestInfo` entries in declaration order. With
+  `--gtest_shuffle --gtest_random_seed=N`, it seeds a PRNG with `N` and
+  applies a Fisher-Yates permutation to that same array before iterating —
+  the set of tests and their individual bodies are completely unchanged;
+  only the sequence of `construct → SetUp → TestBody → TearDown → destruct`
+  calls across *different* test instances is reordered.
+- **A state leak survives only through something that isn't reconstructed
+  per test.** Per-test member variables are destroyed and freshly constructed
+  every time (point 3 back in Module 7), so shuffling can't affect them. What
+  it *can* affect is anything with lifetime longer than one test: a
+  file-scope `static`, a Meyer's singleton, a leftover row in a shared test
+  database, an environment variable set and never unset. Running order A→B
+  might have A's leftover state be exactly what B's (buggy, unwritten)
+  assumption needs; running order B→A exposes that B never actually
+  initialized what it depends on.
+- **The fixed seed is what makes a shuffle-caused failure reproducible rather
+  than "flaky."** Reporting `--gtest_random_seed=N` alongside a shuffled
+  failure lets anyone re-run the *exact same permutation* deterministically —
+  turning what looks like nondeterminism into a fully repeatable ordering bug,
+  which is the entire point of using a PRNG instead of true randomness here.
+
 ## Exercise
 
 Take the `Router` from section 2 and extend it into a small integration

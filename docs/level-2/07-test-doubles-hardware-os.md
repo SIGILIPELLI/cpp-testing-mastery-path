@@ -272,6 +272,39 @@ The discipline is layered: unit tests against fakes for logic and error paths;
 **integration tests against the real dependency** for the assumptions the fakes
 encode. If you never run against real hardware, you have tested your fake.
 
+## How It Actually Works: where each seam actually intercepts the call
+
+The different "seam" techniques earlier in this module aren't interchangeable
+style choices — each one intercepts the real hardware/OS call at a different
+point in the build/link/run pipeline, which is why they have different
+blast radii.
+
+- **A link seam swaps object files at link time.** If your test build links
+  `fake_hal.o` instead of `real_hal.o` for the same declared symbols, the
+  linker resolves every call to those symbols against the fake's definitions
+  — the compiled call sites in your logic code are byte-identical between
+  test and production builds; only the *linker's symbol resolution* differs.
+  This is the safest seam precisely because it changes nothing upstream of
+  the link step.
+- **A preprocessor seam (`#define read_reg fake_read_reg`) intercepts before
+  the compiler ever sees the real name.** Token substitution happens in the
+  earliest translation phase, so the compiled object code for the test build
+  contains calls to `fake_read_reg` baked in — there is no `read_reg` symbol
+  reference left for the linker to resolve differently. That's the mechanical
+  reason this technique "hides real code": the test binary and the shipped
+  binary are compiled from textually different source, not just linked
+  differently, so a codegen-affecting bug in the macro itself never appears
+  in either build's test coverage.
+- **A function-pointer seam intercepts at run time, through an extra load.**
+  Instead of calling `read_reg()` directly, production code calls through a
+  pointer variable (`g_read_reg_fn(...)`) that production `main()`
+  initializes to the real function and test setup reinitializes to a fake.
+  The compiled call site is identical between builds — the indirection is
+  the same idea as GoogleMock's vtable slot (Module 2), just implemented by
+  hand with a raw function pointer instead of virtual dispatch, which is
+  exactly why it's the standard portable technique for C code with no
+  classes and no linker `--wrap` support.
+
 ## Exercise
 
 Build a thermostat controller with every dependency faked, then verify the fakes.

@@ -280,6 +280,42 @@ reason to choose it when either of those already fits.
 | Death tests, typed tests | Not built here | Yes |
 | Footprint | Two small `.c` files | Full library, larger binary |
 
+## How It Actually Works: constructor attributes vs. C++ static init, and why order is unspecified
+
+Section 1 already showed `__attribute__((constructor))` doing the
+registration work — worth being precise about how it compares to
+GoogleTest's mechanism (Level 1 Module 7) and what it does *not* guarantee.
+
+- **Both rely on code running before `main()`, but through different
+  compiler/linker features.** GoogleTest's registration runs via C++'s
+  language-defined static-initialization order rules (constructors of
+  namespace-scope objects run before `main`). `__attribute__((constructor))`
+  is a GCC/Clang extension with no equivalent in the C standard: it places
+  the function's address into a special linker section (`.init_array` on
+  ELF platforms), and the C runtime startup code, before calling `main`,
+  iterates that section calling every function pointer in it. This is why
+  the trick is portable across GCC/Clang but not to every compiler — MSVC
+  needs a different mechanism (`#pragma section` and manually placed
+  pointers) to achieve the same effect.
+- **Neither mechanism guarantees a specific order across translation
+  units, only that "before main" holds.** Within one `.init_array` section
+  the linker generally preserves link order, but that order is an
+  implementation detail of the toolchain, not a language guarantee — which is
+  exactly why both GoogleTest and this module's framework need the
+  `--gtest_shuffle`-style discipline (or, here, simply not depending on
+  registration order at all): a test suite correctness argument that
+  silently assumes "test A registers before test B" is relying on
+  unspecified behavior that a different linker version could break.
+- **The exit-code wiring in section 4 is not incidental glue — it's the same
+  process-boundary contract from Level 1 Module 1, now traced all the way
+  through a framework you wrote yourself.** `main()` here has to explicitly
+  track a global failure counter across every `MT_TEST`/`MT_TEST_F`
+  invocation and `return (failures > 0) ? 1 : 0;` — GoogleTest does the exact
+  same bookkeeping internally in `RUN_ALL_TESTS()`, just hidden behind more
+  layers; writing it by hand here is what makes visible that "a testing
+  framework" is, at its irreducible core, nothing more than: run some
+  functions, count what failed, return non-zero if anything did.
+
 ## Exercise
 
 1. Build and run `example_tests.c` exactly as shown, confirm the same

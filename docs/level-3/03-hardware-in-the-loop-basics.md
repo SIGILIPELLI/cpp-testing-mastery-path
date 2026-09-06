@@ -170,6 +170,35 @@ the fakes cannot see.
 | How often should HIL run? | Smoke suite per merge, full suite nightly/pre-release |
 | What must a HIL fixture guarantee? | A truly clean starting state — power cycle, not just reset, if persistence exists |
 
+## How It Actually Works: why "poll with a timeout," never `sleep`
+
+- **A bare `sleep(N)` encodes a guess about *duration*; polling encodes the
+  actual *condition* you care about.** Real hardware state changes are
+  triggered by physical events (a GPIO edge, a bus transaction completing,
+  an ADC conversion finishing) whose latency varies with temperature, supply
+  voltage, and firmware load — there is no fixed `N` that is both fast enough
+  to not waste CI time and slow enough to never flake under worse-case
+  conditions. Polling instead re-reads the actual status register or GPIO
+  state in a loop with a maximum-timeout escape hatch, so the test's pass/fail
+  boundary is "did the real condition become true," not "did an arbitrary
+  clock duration elapse."
+- **A stability check exists because a single "true" reading can be
+  electrical noise, not the real transition.** Debounce logic (checking that
+  a signal reads the same value across N consecutive polls a few
+  milliseconds apart) exists because mechanical switches and some digital
+  lines genuinely oscillate for a few milliseconds before settling — a test
+  that acts on the very first "high" reading is testing your noise floor, not
+  your firmware.
+- **A power cycle differs from a reset because persistent state — flash,
+  EEPROM, RTC, retained SRAM — survives a reset but not a power-down.** A
+  microcontroller `RESET` pin typically re-runs the boot vector and clears
+  volatile registers, but explicitly does *not* zero flash-backed
+  configuration or a battery-backed RTC; a HIL fixture that only resets
+  between tests can leak persisted state across test cases in exactly the
+  same way an un-torn-down global variable leaks state between host unit
+  tests (Module 1) — the fix is the hardware equivalent of a fresh
+  fixture instance: cut power, wait for full discharge, then power back up.
+
 ## Exercise
 
 1. Sketch a `Harness` interface (method signatures only) for a rig that

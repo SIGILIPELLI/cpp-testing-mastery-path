@@ -226,6 +226,40 @@ Practical policy:
 5. Never let coverage substitute for the mutation question: *if I broke this
    line, would a test fail?*
 
+## How It Actually Works: how `.gcda` counters get produced and merged
+
+- **`-fprofile-arcs -ftest-coverage` (or `--coverage`) instruments control-flow
+  edges, not lines.** GCC/Clang build a control-flow graph for each function
+  at compile time and inject a hidden counter increment on each **arc**
+  between basic blocks. Because every possible path through a function is a
+  sequence of arcs, the compiler needs to instrument only a *spanning set* of
+  arcs (not literally all of them) to be able to derive every other arc's
+  count arithmetically — this is why coverage instrumentation overhead is
+  modest even though every branch is theoretically tracked.
+- **`.gcno` and `.gcda` split static structure from dynamic counts.** The
+  `.gcno` file, written at compile time, records the CFG shape and source
+  line mapping for each function. The `.gcda` file, written when the
+  instrumented binary calls its exit-time flush routine (registered via
+  `atexit()`), contains just the raw arc counter values from that run. A
+  coverage tool like `lcov`/`gcov` needs *both* — the shape from `.gcno`, the
+  counts from `.gcda` — to reconstruct which lines executed how many times,
+  which is exactly why deleting only one of the pair or mixing files from a
+  different compile produces nonsense or a hard error.
+- **Counts accumulate across runs because the exit-time writer merges, not
+  overwrites, into an existing `.gcda` file** — each test binary invocation
+  adds to the same file if it already exists from a prior run against the
+  same build. That's the literal mechanism behind "stale directory reports
+  coverage from deleted tests": the counter file remembers every run since
+  the last `--zerocounters` regardless of whether the test that produced
+  those counts still exists in your source.
+- **Branch coverage catches what line coverage structurally cannot**, because
+  a single source line like `if (a && b)` compiles to multiple arcs (short-
+  circuit evaluation means `b` may or may not execute) — line coverage marks
+  the line "hit" the moment either arc is taken even once, while branch
+  coverage requires both the true and false arc of each condition to be
+  exercised, which is why a test suite can show 100% line coverage while
+  never once exercising the `a && !b` case.
+
 ## Exercise
 
 1. **Reproduce section 2 exactly.** Build `grade.c` with `--coverage`, run the

@@ -612,6 +612,43 @@ Note the argument order difference: Unity and CMocka put **expected first**
 inverts every failure message — "Expected 3 Was 0" when you meant the opposite.
 Check the convention before you write a hundred tests.
 
+## How It Actually Works: registration without C++ classes
+
+Unity and CMocka solve the same "find and run every test" problem as
+GoogleTest, but C has no classes or static-initializer-before-`main` idiom
+in the same form, so they do it differently — and less automatically.
+
+- **Unity has no runtime registry at all.** `RUN_TEST(test_name)` is a macro
+  that directly calls `test_name()` wrapped in a `setUp()`/`tearDown()` pair
+  and increments Unity's global pass/fail counters based on whether a
+  `TEST_ASSERT_*` macro set its internal failure flag via `longjmp`. There is
+  no discovery step — the list of tests that runs is exactly and only the
+  `RUN_TEST()` lines you wrote in `main()`. This is why forgetting to add a new
+  test to the runner file means it silently never executes, with no error —
+  a real footgun Unity projects have to guard against with generator scripts.
+- **`TEST_ASSERT_*` failure uses `setjmp`/`longjmp`, not exceptions.** C has no
+  stack unwinding mechanism, so when an assertion fails, Unity calls
+  `longjmp` back to a `setjmp` point captured at the start of the current
+  test, which abandons the rest of the test function's execution (any `free()`
+  calls after the assertion never run — this is the practical reason CMocka
+  tests, and careful Unity tests, do cleanup in `tearDown()` rather than
+  after assertions).
+- **CMocka *does* have a registry, built from an array of function pointers.**
+  `cmocka_unit_test(fn)` isn't a macro that registers anything by itself —
+  it expands to a `struct CMUnitTest` literal `{ "fn", fn, NULL, NULL, NULL }`
+  that you place into an array, which `cmocka_run_group_tests()` then iterates
+  with an ordinary `for` loop, `fork()`-ing a child process per test when
+  CMocka's process-isolation mode is enabled so a `SIGSEGV` in one test case
+  doesn't take the whole suite down with it — closer in spirit to how `ctest`
+  isolates whole binaries than to GoogleTest's in-process model.
+- **CMocka's mock return values are a manually-managed queue, not vtable
+  interception.** `will_return()` pushes a value onto a per-symbol linked list;
+  `mock()` pops the next value off that list. There's no compiler magic — it
+  works only because your production code calls `mock()` directly (via a
+  macro or `#ifdef UNIT_TESTING` seam), which is the real reason "mockable" C
+  code needs a function-pointer or preprocessor seam that C++ virtual
+  dispatch gets for free (see Level 2's GoogleMock module for that contrast).
+
 ## Exercise
 
 Build a complete C unit test suite for a ring buffer.

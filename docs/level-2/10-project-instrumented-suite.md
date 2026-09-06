@@ -355,6 +355,37 @@ silent wrong answer or a hard-to-reproduce crash.
 | Suspicious pattern even without a failing test | clang-tidy / cppcheck |
 | Regression after a refactor | All of the above, run in CI on every push |
 
+## How It Actually Works: why the same bug needs multiple independent gates
+
+The `container-overflow` catch above isn't luck — it's the direct result of
+the redzone/shadow-memory mechanism from Module 4 applied to a container
+instead of a raw array: ASan's container-annotations API lets an
+STL-like container mark its unused reserved capacity as poisoned, so a read
+one slot past `size()` (but still inside `capacity()`, so a plain bounds
+check inside the container wouldn't fail) still trips the shadow-memory
+check on the underlying buffer.
+
+That's also why the cheat sheet's rows are gates on genuinely different
+mechanisms, not overlapping restatements of "find bugs":
+
+- Unit tests check a **specific expected value** you wrote down in advance —
+  they catch nothing you didn't think to assert.
+- ASan/UBSan check a **general safety/language-rule property** on every byte
+  touched or every arithmetic operation performed along whatever path
+  actually executed — they need no assertion, but they only see code paths
+  your tests happen to drive.
+- Coverage checks **which paths executed at all**, independent of whether
+  anything was asserted or violated — it tells you where the other three
+  gates had no opportunity to find anything.
+- Static analysis checks **all statically reachable paths' constraints**
+  without executing any of them — it's the only gate in the table that can
+  flag a bug in code no test currently reaches.
+
+No single gate subsumes another because each observes a different axis (an
+assertion you wrote vs. a language rule vs. execution reach vs. static
+reachability) — which is the real justification for running all of them in
+CI rather than picking the "best" one.
+
 ## Stretch goals
 
 - Make `Top()` bounds-safe (throw on empty, like `Pop()`), delete the

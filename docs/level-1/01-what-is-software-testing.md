@@ -234,6 +234,30 @@ a convenience, it is the only way to observe an entire class of defects.
 A defect that is never executed never causes a failure — which is exactly why
 untested code paths are where bugs live.
 
+## How It Actually Works: from "assert" to a red X
+
+Every testing tool in this course — GoogleTest, Unity, CMocka, `ctest` — sits on
+top of the same three-layer mechanism, and it's worth seeing it once explicitly
+before you meet the macros.
+
+1. **The check is a plain runtime comparison.** `ASSERT_EQ(a, b)` or
+   `assert(a == b)` compiles down to an ordinary `if` that compares two values
+   at the machine level — there is no "testing mode" in the CPU. The only thing
+   special about test code is what happens on the *false* branch.
+2. **Failure is signalled through the same channels every program has:** a
+   non-zero process exit code, a write to `stderr`, or (for `assert()`) a call
+   to `abort()` that raises `SIGABRT`. A test framework's real job is to *catch*
+   these signals per-test rather than let one failure kill the whole process —
+   GoogleTest does this by wrapping each `TEST()` body in a way that records a
+   failed comparison and keeps running instead of calling `abort()`.
+3. **The runner aggregates exit statuses.** `ctest`, or a CI job, launches each
+   test binary (or each registered case) as a child process, inspects its exit
+   code, and turns "0 for pass / non-zero for fail" into the red/green report
+   you see. That translation — machine exit code to human pass/fail — is the
+   entire mechanical foundation every tool in this path builds on. Everything
+   from here on (fixtures, mocks, sanitizers, coverage) is instrumentation
+   layered around this same exit-code contract.
+
 ## Exercise
 
 No code for this one — it's an analysis exercise, and the reasoning is the

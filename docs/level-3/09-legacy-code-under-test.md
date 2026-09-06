@@ -257,6 +257,45 @@ indistinguishable, in a diff, from a refactor.
 | Found a bug while characterizing | Record it as-is; fix it in a separate, tested change |
 | Extraction changed a characterization result | The extraction has a bug — stop and investigate |
 
+## How It Actually Works: why "extract-and-override" is a safe refactor
+
+The `protected virtual` seam this module uses to break a hard-wired
+dependency relies on the same vtable mechanism as GoogleMock (Level 2
+Module 2), applied manually instead of through a macro.
+
+- **Extracting a call into a protected virtual method changes zero runtime
+  behavior in production, by construction.** Before the extraction, the
+  original method body calls the dependency directly; after, it calls
+  `this->DoTheThing()`, and `DoTheThing()`'s only body is the exact code that
+  used to be inline. Because there is exactly one class (the production
+  class itself) implementing that vtable slot at this point, the compiled
+  call sequence for production code is: load vtable pointer, load the slot,
+  call through it, land on the only implementation that has ever existed —
+  functionally identical to the direct call, just with one extra
+  indirection. This is precisely why extraction alone should never change a
+  characterization test's result; if it does, the extraction itself
+  introduced a bug (a missed side effect, a changed evaluation order for
+  arguments) rather than "the test being wrong."
+- **A test subclass overrides that same slot, and the vtable mechanism does
+  the substitution for you.** A `TestableFoo : public Foo` that overrides
+  `DoTheThing()` gets its own vtable, distinct from `Foo`'s, with that one
+  slot pointing at the test's version instead — every *other* method `Foo`
+  inherited still dispatches through the original implementations, because
+  only the overridden slot differs between the two vtables. This is why the
+  seam is called "minimal": you're changing one vtable slot's target, not
+  restructuring the class's public contract.
+- **A characterization test's oracle is "whatever the code currently does,"
+  which is a genuinely different kind of correctness check than every other
+  module in this course.** Every other test in this path derives its
+  expected value from a requirement or specification (Level 1 Module 2);
+  a characterization test's expected value is captured by literally running
+  the existing code and recording the output — the test formalizes "the
+  refactor didn't change observable behavior," not "the behavior is
+  correct." That's exactly why intentionally fixing a discovered bug has to
+  be a separate commit: mixing it in makes the characterization suite's
+  failure ambiguous between "I preserved a bug" (fine) and "I broke
+  something else during extraction" (not fine).
+
 ## Exercise
 
 1. Take the `calculate_total` function, add a characterization test for a

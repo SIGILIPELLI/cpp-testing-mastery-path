@@ -274,6 +274,41 @@ output.
 | Oracle comparison | Fast implementation matches a trusted slow one |
 | Metamorphic | A known relationship holds between two related calls |
 
+## How It Actually Works: generation and shrinking as one algorithm
+
+- **A generator is a seeded-PRNG-driven recursive builder, not a random-bytes
+  source.** RapidCheck (and QuickCheck-family libraries generally) generate a
+  value by drawing a fixed stream of pseudo-random numbers from the run's
+  seed and using them to make structural decisions recursively — "how many
+  elements in this vector," then "generate each element," then for a nested
+  type "which variant, then generate its fields." The value and its full
+  generation history are both derived deterministically from the seed, which
+  is exactly why printing the seed makes a failure replayable: replaying the
+  seed replays the identical sequence of structural decisions.
+- **Shrinking is a search over a *smaller* space defined by that same
+  generator, not string/array truncation.** When a random case fails, the
+  library doesn't blindly delete characters — it asks each generator for a
+  set of "simpler" values in its own domain (an integer shrinks toward zero,
+  a vector shrinks by dropping elements or shrinking each element), re-runs
+  the property against each candidate, and recurses into whichever shrunk
+  candidate *still fails*. This is a greedy local search for a local minimum
+  of "size" subject to the constraint "still reproduces the failure" — which
+  is precisely why a shrunk failing case can violate a precondition the
+  original respected: the shrinker only knows "smaller and still fails," it
+  has no idea what your precondition means unless you encode it as an
+  explicit filter the shrinker also has to satisfy.
+- **`RC_PRE` filters work by discarding and re-drawing, which is why an
+  over-strict filter silently narrows coverage.** A precondition filter
+  doesn't constrain the generator's *distribution* — it generates a value,
+  checks the predicate, and throws the value away and tries again if it
+  fails, up to a retry limit. If the predicate is satisfied by only a thin
+  slice of what the generator naturally produces, the vast majority of draws
+  are wasted retries, and the property ends up exercised almost entirely on
+  the rare values that happened to pass — which is exactly the "discarded"
+  count RapidCheck reports, and why a high discard rate means the *generator*
+  needs to produce more relevant values directly, not that the filter needs
+  loosening.
+
 ## Exercise
 
 1. Write a round-trip property for the `frame_parse`/hypothetical

@@ -176,6 +176,39 @@ other dependency:
 | One test binary is a bottleneck | Sharding + parallel execution |
 | Shared fixtures drift silently | Version fixtures with the code, assign an owner |
 
+## How It Actually Works: affected-test selection as a reachability query
+
+"Dependency-graph-based affected-test selection" is a concrete graph
+algorithm, not a vague architectural principle — build systems that
+implement it (Bazel's `bazel test //...` with query, or a custom mapping
+layer over CMake) all reduce to the same computation.
+
+- **The build graph already encodes the dependency data — it's reused, not
+  rebuilt.** A build system that tracks header/library dependencies for
+  incremental compilation (so it knows "recompile `foo.cpp` if `bar.h`
+  changed") has, as a side effect, a complete directed graph from source
+  files to the object files, libraries, and ultimately test binaries that
+  transitively depend on them. Affected-test selection is a **reverse
+  reachability query** on that same graph: given the set of changed files in
+  a commit, find every test-binary node reachable by following dependency
+  edges backward from those files.
+- **This is why the graph must be accurate at file granularity, not just
+  target granularity, to be worth anything.** If the dependency data only
+  says "this test target depends on this library target" without tracking
+  which specific headers/sources within the library the test binary actually
+  transitively includes, then any change to any file in a large shared
+  library marks every test that links it as "affected" — collapsing the
+  optimization back to "run everything," which is the actual failure mode
+  behind vague dependency tracking in a large codebase.
+- **Sharding is a partition of the *same* registry from Level 1 Module 7, not
+  a different execution model.** `--gtest_shard_index=k --gtest_total_shards=N`
+  tells one GoogleTest process to only construct and run the subset of its
+  registered `TestInfo` entries whose position modulo `N` equals `k` — the
+  registry, construction, and per-test lifecycle are completely unchanged;
+  sharding just distributes iteration over that one array across N separate
+  OS processes (often on N separate machines) instead of one process running
+  the whole array serially.
+
 ## Exercise
 
 1. Sketch a dependency graph (as a diagram or a nested list) for a

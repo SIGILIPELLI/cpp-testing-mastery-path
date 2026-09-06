@@ -223,6 +223,44 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 | How do I fuzz structured formats? | Interpret raw bytes as your grammar inside the target |
 | How do I know it's actually working? | Watch `cov:`/`ft:` climb, not just "no crash yet" |
 
+## How It Actually Works: what "coverage-guided" actually means
+
+libFuzzer isn't randomly guessing bytes — it's running a genetic algorithm
+whose fitness function is compiler-inserted edge coverage.
+
+- **`-fsanitize=fuzzer` instruments every edge in the control-flow graph**,
+  similarly to `--coverage` in Module 6 of Level 2 but lighter-weight: each
+  edge gets an 8-bit counter that increments (with saturating arithmetic) when
+  that edge is taken. libFuzzer keeps a persistent global bitmap of which
+  edges have ever been hit across the whole fuzzing run — this bitmap, not the
+  literal input bytes, is what "coverage" in the `cov:` log line counts.
+- **Every input is scored, and only ones that discover new bitmap bits are
+  kept.** libFuzzer runs your `LLVMFuzzerTestOneInput` on a candidate input,
+  checks whether the resulting edge bitmap gained bits never seen before; if
+  so, the input is added to the in-memory corpus as a new "interesting" seed.
+  Inputs that touch no new edges are discarded. This is the entire
+  "coverage-guided" mechanism: it's a hill-climbing search where the corpus
+  is the population and "found a new edge" is the sole selection pressure —
+  no understanding of your input format is involved at this level.
+- **Mutation is dumb; the coverage feedback is what makes it look smart.**
+  Each generation, libFuzzer takes a seed from the corpus and applies cheap
+  mutations — bit flips, byte-insertions, splicing two seeds together,
+  dictionary-token substitution. Most mutants are worthless and get
+  discarded immediately by the coverage check above; the rare mutant that
+  flips one comparison's outcome (e.g. finally matching a magic-number check)
+  gets kept, and future mutations build on it — which is exactly why a seed
+  corpus containing a valid file with the right magic bytes matters so much:
+  without one, the fuzzer may spend enormous CPU time randomly guessing the
+  exact bytes a comparison requires before the coverage bitmap ever grows
+  past that check.
+- **A crash is caught by the same ASan/UBSan mechanisms from Level 2**,
+  because libFuzzer runs in-process, in a loop, calling your target function
+  directly rather than forking a new process per input (unlike CTest's
+  per-test process model) — which is exactly why non-determinism or stray
+  global state between iterations is so damaging here: it isn't just a
+  correctness worry, it silently corrupts the fuzzer's own coverage
+  bookkeeping and defeats its crash-minimization replay.
+
 ## Exercise
 
 1. Write a `LLVMFuzzerTestOneInput` target for the checksum-extended
