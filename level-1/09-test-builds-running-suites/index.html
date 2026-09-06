@@ -1080,6 +1080,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-a-test-binary-decides-what-ran-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how a test binary decides what "ran" means
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2427,6 +2438,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-a-test-binary-decides-what-ran-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how a test binary decides what "ran" means
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2914,6 +2936,35 @@ green meaning "everything we claim to test, passes."</p>
 <li>[ ] Results are exported as JUnit XML for CI</li>
 <li>[ ] Skipped and disabled tests are listed and reviewed</li>
 <li>[ ] Adding a new test file is a one-line change</li>
+</ul>
+<h2 id="how-it-actually-works-how-a-test-binary-decides-what-ran-means">How It Actually Works: how a test binary decides what "ran" means<a class="headerlink" href="#how-it-actually-works-how-a-test-binary-decides-what-ran-means" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>A GoogleTest binary is a single process that reports many results.</strong>
+  <code>--gtest_filter</code>, <code>--gtest_shuffle</code>, and <code>--gtest_repeat</code> are all handled
+  entirely inside that one process, before <code>RUN_ALL_TESTS()</code> walks the
+  registry from Module 7 — filtering just skips constructing/running matching
+  <code>TestInfo</code> entries, and shuffling reorders the same array with a
+  seeded PRNG so <code>--gtest_shuffle --gtest_random_seed=N</code> is reproducible.
+  Parallelism across <em>files</em> (<code>-j</code> in CTest) instead spawns multiple whole
+  processes, because GoogleTest itself is single-threaded per invocation.</li>
+<li><strong>CTest's parallelism is OS-level process concurrency, not thread
+  scheduling inside your test binary.</strong> <code>ctest -j8</code> forks up to 8 child
+  processes at once, each running one registered test executable to
+  completion, and multiplexes their stdout/stderr back to the terminal. This
+  is exactly why "tests depend on the working directory" or "tests write to
+  the same file" break under <code>-j</code> but pass serially — two OS processes racing
+  on the same inode is a real filesystem race, not a testing-framework quirk.</li>
+<li><strong>A timeout is enforced by the runner killing the child, not by the test
+  cooperating.</strong> CTest's <code>TIMEOUT</code> property starts a wall-clock timer when it
+  forks the test process and sends <code>SIGKILL</code> (or the platform equivalent) if
+  the process hasn't exited by then — the hung test never gets a chance to
+  clean up, which is why a suite that leaks a lock file or IPC handle on
+  timeout will make the <em>next</em> run fail too.</li>
+<li><strong>JUnit XML export is a format translation, nothing more.</strong> <code>--gtest_output=xml</code>
+  or CTest's <code>--output-junit</code> walks the same in-memory result data structure
+  that would otherwise print to your terminal and serializes it as
+  <code>&lt;testsuite&gt;&lt;testcase&gt;</code> elements — CI dashboards read that XML because it's
+  a de facto standard, not because anything about the test execution changes.</li>
 </ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Take the project you built across Modules 6–8 and turn it into a properly

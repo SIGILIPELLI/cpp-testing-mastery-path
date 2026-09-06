@@ -1091,6 +1091,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-registration-without-c-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: registration without C++ classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2505,6 +2516,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-registration-without-c-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: registration without C++ classes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3233,6 +3255,42 @@ much and wants splitting.</p>
 (<code>EXPECT_EQ(actual, 0)</code>). Getting this backwards doesn't break the test, but it
 inverts every failure message — "Expected 3 Was 0" when you meant the opposite.
 Check the convention before you write a hundred tests.</p>
+<h2 id="how-it-actually-works-registration-without-c-classes">How It Actually Works: registration without C++ classes<a class="headerlink" href="#how-it-actually-works-registration-without-c-classes" title="Permanent link">&para;</a></h2>
+<p>Unity and CMocka solve the same "find and run every test" problem as
+GoogleTest, but C has no classes or static-initializer-before-<code>main</code> idiom
+in the same form, so they do it differently — and less automatically.</p>
+<ul>
+<li><strong>Unity has no runtime registry at all.</strong> <code>RUN_TEST(test_name)</code> is a macro
+  that directly calls <code>test_name()</code> wrapped in a <code>setUp()</code>/<code>tearDown()</code> pair
+  and increments Unity's global pass/fail counters based on whether a
+  <code>TEST_ASSERT_*</code> macro set its internal failure flag via <code>longjmp</code>. There is
+  no discovery step — the list of tests that runs is exactly and only the
+  <code>RUN_TEST()</code> lines you wrote in <code>main()</code>. This is why forgetting to add a new
+  test to the runner file means it silently never executes, with no error —
+  a real footgun Unity projects have to guard against with generator scripts.</li>
+<li><strong><code>TEST_ASSERT_*</code> failure uses <code>setjmp</code>/<code>longjmp</code>, not exceptions.</strong> C has no
+  stack unwinding mechanism, so when an assertion fails, Unity calls
+  <code>longjmp</code> back to a <code>setjmp</code> point captured at the start of the current
+  test, which abandons the rest of the test function's execution (any <code>free()</code>
+  calls after the assertion never run — this is the practical reason CMocka
+  tests, and careful Unity tests, do cleanup in <code>tearDown()</code> rather than
+  after assertions).</li>
+<li><strong>CMocka <em>does</em> have a registry, built from an array of function pointers.</strong>
+  <code>cmocka_unit_test(fn)</code> isn't a macro that registers anything by itself —
+  it expands to a <code>struct CMUnitTest</code> literal <code>{ "fn", fn, NULL, NULL, NULL }</code>
+  that you place into an array, which <code>cmocka_run_group_tests()</code> then iterates
+  with an ordinary <code>for</code> loop, <code>fork()</code>-ing a child process per test when
+  CMocka's process-isolation mode is enabled so a <code>SIGSEGV</code> in one test case
+  doesn't take the whole suite down with it — closer in spirit to how <code>ctest</code>
+  isolates whole binaries than to GoogleTest's in-process model.</li>
+<li><strong>CMocka's mock return values are a manually-managed queue, not vtable
+  interception.</strong> <code>will_return()</code> pushes a value onto a per-symbol linked list;
+  <code>mock()</code> pops the next value off that list. There's no compiler magic — it
+  works only because your production code calls <code>mock()</code> directly (via a
+  macro or <code>#ifdef UNIT_TESTING</code> seam), which is the real reason "mockable" C
+  code needs a function-pointer or preprocessor seam that C++ virtual
+  dispatch gets for free (see Level 2's GoogleMock module for that contrast).</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Build a complete C unit test suite for a ring buffer.</p>
 <ol>

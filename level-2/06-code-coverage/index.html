@@ -1300,6 +1300,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-gcda-counters-get-produced-and-merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how .gcda counters get produced and merged
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,6 +2294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-gcda-counters-get-produced-and-merged" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how .gcda counters get produced and merged
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2534,6 +2556,40 @@ easy to abuse:</p>
 <li>Never let coverage substitute for the mutation question: <em>if I broke this
    line, would a test fail?</em></li>
 </ol>
+<h2 id="how-it-actually-works-how-gcda-counters-get-produced-and-merged">How It Actually Works: how <code>.gcda</code> counters get produced and merged<a class="headerlink" href="#how-it-actually-works-how-gcda-counters-get-produced-and-merged" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>-fprofile-arcs -ftest-coverage</code> (or <code>--coverage</code>) instruments control-flow
+  edges, not lines.</strong> GCC/Clang build a control-flow graph for each function
+  at compile time and inject a hidden counter increment on each <strong>arc</strong>
+  between basic blocks. Because every possible path through a function is a
+  sequence of arcs, the compiler needs to instrument only a <em>spanning set</em> of
+  arcs (not literally all of them) to be able to derive every other arc's
+  count arithmetically — this is why coverage instrumentation overhead is
+  modest even though every branch is theoretically tracked.</li>
+<li><strong><code>.gcno</code> and <code>.gcda</code> split static structure from dynamic counts.</strong> The
+  <code>.gcno</code> file, written at compile time, records the CFG shape and source
+  line mapping for each function. The <code>.gcda</code> file, written when the
+  instrumented binary calls its exit-time flush routine (registered via
+  <code>atexit()</code>), contains just the raw arc counter values from that run. A
+  coverage tool like <code>lcov</code>/<code>gcov</code> needs <em>both</em> — the shape from <code>.gcno</code>, the
+  counts from <code>.gcda</code> — to reconstruct which lines executed how many times,
+  which is exactly why deleting only one of the pair or mixing files from a
+  different compile produces nonsense or a hard error.</li>
+<li><strong>Counts accumulate across runs because the exit-time writer merges, not
+  overwrites, into an existing <code>.gcda</code> file</strong> — each test binary invocation
+  adds to the same file if it already exists from a prior run against the
+  same build. That's the literal mechanism behind "stale directory reports
+  coverage from deleted tests": the counter file remembers every run since
+  the last <code>--zerocounters</code> regardless of whether the test that produced
+  those counts still exists in your source.</li>
+<li><strong>Branch coverage catches what line coverage structurally cannot</strong>, because
+  a single source line like <code>if (a &amp;&amp; b)</code> compiles to multiple arcs (short-
+  circuit evaluation means <code>b</code> may or may not execute) — line coverage marks
+  the line "hit" the moment either arc is taken even once, while branch
+  coverage requires both the true and false arc of each condition to be
+  exercised, which is why a test suite can show 100% line coverage while
+  never once exercising the <code>a &amp;&amp; !b</code> case.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>

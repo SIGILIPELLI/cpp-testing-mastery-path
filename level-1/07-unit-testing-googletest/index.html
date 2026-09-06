@@ -1091,6 +1091,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-test-actually-expands-into" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what TEST() actually expands into
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2561,6 +2572,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-test-actually-expands-into" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what TEST() actually expands into
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3195,6 +3217,46 @@ them is that a failure names which behaviour broke.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-what-test-actually-expands-into">How It Actually Works: what <code>TEST()</code> actually expands into<a class="headerlink" href="#how-it-actually-works-what-test-actually-expands-into" title="Permanent link">&para;</a></h2>
+<p><code>TEST(SuiteName, CaseName) { ... }</code> looks like it declares a function that
+some magical runner later "finds." It doesn't — it's ordinary C++ doing
+static registration, and you can trace every step.</p>
+<ol>
+<li><strong><code>TEST()</code> is a macro that defines a class.</strong> It expands (simplified) to a
+   class <code>SuiteName_CaseName_Test</code> deriving from <code>::testing::Test</code>, with your
+   <code>{ ... }</code> body becoming the override of its <code>TestBody()</code> virtual method.
+   Your test code is not a free function at all — it's a method on a
+   generated class.</li>
+<li><strong>A static object registers that class at static-initialization time.</strong> The
+   macro also emits a namespace-scope object whose constructor runs <em>before</em>
+   <code>main()</code>, during C++ static initialization. That constructor calls
+   <code>::testing::UnitTest::GetInstance()-&gt;parameterized_test_registry()</code> (in
+   spirit — the exact API is <code>MakeAndRegisterTestInfo</code>), handing the registry a
+   factory function that can construct your test class. This is why you never
+   call your tests by name anywhere — every <code>TEST()</code> macro silently inserts
+   itself into a global list purely as a side effect of the program loading.</li>
+<li><strong><code>RUN_ALL_TESTS()</code> iterates that registry, not your source.</strong> At runtime it
+   walks every registered <code>TestInfo</code>, and for each one: constructs a fresh
+   instance of your generated test class (so member fixtures are per-test,
+   never shared), calls <code>SetUp()</code>, calls <code>TestBody()</code>, calls <code>TearDown()</code>, then
+   destroys the instance. A fresh instance per test is precisely why fixture
+   member variables can't leak state between tests — construction/destruction
+   guarantees a clean slate that manual global variables do not.</li>
+<li><strong><code>EXPECT_*</code> and <code>ASSERT_*</code> differ by what they do to control flow, not by
+   what they check.</strong> Both macros perform the same comparison and, on failure,
+   record it via <code>AddTestPartResult</code> (which is what makes the result show up
+   red without touching <code>errno</code> or throwing). The difference is <code>ASSERT_*</code>
+   macros additionally expand to a bare <code>return;</code> on failure — that's a literal
+   <code>return</code> statement injected into your <code>TestBody()</code>, which only works because
+   <code>TestBody()</code> returns <code>void</code>; it's why you can't use <code>ASSERT_*</code> inside a
+   helper function that returns a real value without wrapping it or using
+   <code>ASSERT_NO_FATAL_FAILURE</code>.</li>
+<li><strong>Fixture inheritance is why <code>SetUp()</code>/<code>TearDown()</code> exist at all.</strong> A test
+   fixture is just a subclass of <code>::testing::Test</code>; GoogleTest's generated test
+   classes derive from <em>your</em> fixture instead of <code>::testing::Test</code> directly, so
+   the same construct/<code>SetUp</code>/body/<code>TearDown</code>/destruct sequence from point 3
+   naturally runs your setup and teardown — there's no separate hook mechanism.</li>
+</ol>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Extend the project from Module 6 with a real GoogleTest suite.</p>
 <ol>

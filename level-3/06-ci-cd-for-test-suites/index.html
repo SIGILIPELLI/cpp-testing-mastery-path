@@ -1687,6 +1687,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-a-ci-runner-is-actually-orchestrating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what a CI runner is actually orchestrating
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-a-ci-runner-is-actually-orchestrating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what a CI runner is actually orchestrating
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2560,6 +2582,41 @@ every job.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-what-a-ci-runner-is-actually-orchestrating">How It Actually Works: what a CI runner is actually orchestrating<a class="headerlink" href="#how-it-actually-works-what-a-ci-runner-is-actually-orchestrating" title="Permanent link">&para;</a></h2>
+<p>Underneath the YAML, a CI job for a C/C++ suite is just process orchestration
+around the exact same exit-code and file-output contracts from earlier
+modules — nothing about "being in CI" changes what a test binary does.</p>
+<ul>
+<li><strong>A CI "job" is a fresh container or VM, which is why caching matters.</strong>
+  Each job typically starts from a clean filesystem image; without a build
+  cache, every job re-invokes the full compiler toolchain (parse, optimize,
+  codegen, link) from scratch, which is why cross-compiler matrix builds are
+  slow independent of your test count — you're paying full recompilation
+  cost per matrix cell, not per test.</li>
+<li><strong>The runner's own pass/fail for a job is the exit code of the <em>last shell
+  command</em>, propagated exactly like a local terminal session.</strong> <code>ctest
+  --output-on-failure</code> exits non-zero if any registered test failed; the CI
+  system's job runner checks that shell exit status the same way your local
+  terminal's <code>$?</code> does, and marks the whole job red on non-zero — there's no
+  separate "CI understands failure" logic, it's the same convention from
+  Level 1 Module 1 propagated one level further up the process tree (test →
+  ctest → shell → CI runner).</li>
+<li><strong>JUnit XML is a lossy but universal handoff format between otherwise
+  incompatible tools.</strong> CTest's exit code alone tells the CI system red/green
+  for the <em>whole job</em>; the JUnit XML additionally lets the CI dashboard show
+  per-test names and durations without the dashboard needing to understand
+  GoogleTest's or CMocka's native output format at all — it's the same
+  translation idea as Level 1 Module 9's JUnit export, just consumed by a
+  different downstream reader (a CI UI instead of a human scrolling
+  terminal output).</li>
+<li><strong>A matrix build is N independent job graphs sharing one YAML definition,
+  not one job iterating N times.</strong> The CI system expands the matrix
+  declaration into N separate job instances <em>before</em> scheduling — each gets
+  its own container, its own full toolchain invocation, and its own
+  pass/fail — which is why a compiler-specific UB difference genuinely
+  surfaces as "job C++20/Clang red, job C++17/GCC green" rather than a single
+  aggregated result.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Write a <code>ci.yml</code> for the Level 2 capstone (<code>instrumented/</code>) with separate

@@ -2035,6 +2035,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-the-commit-hash-as-a-cryptographic-join-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: the commit hash as a cryptographic join key
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2298,6 +2309,17 @@
     <span class="md-ellipsis">
       
         Cheat sheet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-actually-works-the-commit-hash-as-a-cryptographic-join-key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: the commit hash as a cryptographic join key
       
     </span>
   </a>
@@ -2575,6 +2597,37 @@ cannot be connected with certainty.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-the-commit-hash-as-a-cryptographic-join-key">How It Actually Works: the commit hash as a cryptographic join key<a class="headerlink" href="#how-it-actually-works-the-commit-hash-as-a-cryptographic-join-key" title="Permanent link">&para;</a></h2>
+<p>"The git commit hash appears in every artifact" is doing more mechanical
+work than a simple label — it's what makes the evidence chain tamper-evident,
+not just organized.</p>
+<ul>
+<li><strong>A git commit hash is a SHA-1 (or SHA-256, in newer repos) digest of the
+  commit's content and its parent's hash, recursively.</strong> Because the hash of
+  a commit depends on the hash of every ancestor, changing a single byte
+  anywhere in the tree's history — even in a commit from months earlier —
+  changes that commit's hash, which changes every descendant commit's hash
+  in turn. This is precisely why "the commit hash is in every artifact" is a
+  meaningful integrity claim rather than a bookkeeping convenience: an
+  artifact stamped with hash <code>H</code> can be checked against a repository's actual
+  history, and if <code>H</code> doesn't correspond to a real commit reachable in that
+  history, the evidence chain is provably broken, not just poorly filed.</li>
+<li><strong>Structural coverage and test-result artifacts are only trustworthy if
+  they were generated from a build checked out <em>at</em> that exact commit, with
+  no uncommitted local modifications</strong> — a coverage report generated against
+  a working tree with an uncommitted one-line fix reports coverage for code
+  that, strictly, does not correspond to any hash at all, which is why real
+  certification pipelines fail the build if <code>git status</code> shows anything
+  dirty before generating evidence, rather than trusting a human to remember
+  to commit first.</li>
+<li><strong>This is the same idea as JUnit XML being the untouched CI-generated
+  handoff format in Level 3 Module 6</strong> — "generated from CI's structured
+  output, never hand-transcribed" matters mechanically because a
+  hand-transcribed number has no cryptographic or automated link back to the
+  run that produced it; a generated report retains an unbroken, checkable
+  chain from source commit → CI job → raw tool output → final artifact, with
+  every link machine-verifiable rather than trusted on faith.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Write a test procedure (section 2's format) for one test in your own

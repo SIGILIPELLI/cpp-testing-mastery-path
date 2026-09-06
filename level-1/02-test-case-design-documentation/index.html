@@ -851,6 +851,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-boundary-values-find-bugs-mechanically" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why boundary values find bugs mechanically
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2361,6 +2372,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-boundary-values-find-bugs-mechanically" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why boundary values find bugs mechanically
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2879,6 +2901,29 @@ undocumented expectation is not a test.</p>
 the code is the discipline that separates testing from observing. If you run
 first and record what happened, you will faithfully certify every bug as
 intended behaviour.</p>
+<h2 id="how-it-actually-works-why-boundary-values-find-bugs-mechanically">How It Actually Works: why boundary values find bugs mechanically<a class="headerlink" href="#how-it-actually-works-why-boundary-values-find-bugs-mechanically" title="Permanent link">&para;</a></h2>
+<p>Boundary value analysis isn't a superstition — it targets the exact places
+where C/C++ integer and comparison semantics actually break.</p>
+<ul>
+<li><strong>Off-by-one operators compile to different machine instructions.</strong> <code>&lt;</code> vs
+  <code>&lt;=</code> on a loop bound becomes a different conditional-jump opcode (<code>jl</code> vs
+  <code>jle</code> on x86). A boundary test at <code>n</code> and <code>n-1</code> is specifically designed to
+  land on the one input where a wrong comparison operator changes the branch
+  taken — mid-range inputs take the same branch regardless of the bug.</li>
+<li><strong>Integer overflow is a boundary, not a random failure.</strong> <code>INT_MAX + 1</code> is
+  undefined behaviour in C/C++; a compiler is free to assume it never happens
+  and optimize the surrounding check away entirely. Testing exactly at
+  <code>INT_MAX</code>, <code>INT_MIN</code>, and <code>SIZE_MAX</code> forces the real, compiled behaviour —
+  wraparound, trap, or silently-elided check — to show itself, which is why a
+  test case template always has an explicit "boundary" row rather than relying
+  on "a few random inputs."</li>
+<li><strong>Equivalence partitions map to basic-block coverage.</strong> Two inputs are in the
+  same equivalence class precisely when they drive execution through the same
+  sequence of basic blocks in the compiled binary. Picking one representative
+  per partition is a cheap proxy for exercising every distinct code path
+  without enumerating every input — this is the same idea code coverage tools
+  (Level 2) measure directly instead of inferring by hand.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Take this C function, which is intended to copy a source string into a
 fixed-size destination buffer and always null-terminate:</p>

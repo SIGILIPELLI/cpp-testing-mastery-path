@@ -1378,6 +1378,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-ctests-model-is-just-properties-on-a-test-name-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: CTest's model is just properties on a test-name string
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-ctests-model-is-just-properties-on-a-test-name-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: CTest's model is just properties on a test-name string
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2626,6 +2648,35 @@ exclusive tests <code>RUN_SERIAL TRUE</code> rather than dropping back to <code>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-ctests-model-is-just-properties-on-a-test-name-string">How It Actually Works: CTest's model is just properties on a test-name string<a class="headerlink" href="#how-it-actually-works-ctests-model-is-just-properties-on-a-test-name-string" title="Permanent link">&para;</a></h2>
+<p>CTest has no knowledge of GoogleTest, CMocka, or C++ at all — it stores a flat
+table of <code>{name, command, properties}</code> records and everything above is CTest
+reading and matching against that table.</p>
+<ul>
+<li><strong><code>add_test(NAME foo COMMAND ...)</code> writes one row.</strong> <code>set_tests_properties</code>
+  attaches key/value pairs to that row (<code>TIMEOUT</code>, <code>LABELS</code>, <code>WILL_FAIL</code>,
+  <code>PASS_REGULAR_EXPRESSION</code>...). When you run <code>ctest</code>, it's doing nothing more
+  exotic than: filter rows by <code>-R</code>/<code>-L</code> regex/label match against the <code>name</code>
+  and <code>LABELS</code> fields, then for each surviving row fork the <code>COMMAND</code>,
+  capture stdout/stderr, apply the property checks (regex match against
+  captured output, exit-code check flipped if <code>WILL_FAIL</code>), and mark
+  pass/fail. <code>ctest -N</code> is the same filtering step with the fork skipped.</li>
+<li><strong><code>FIXTURES_SETUP</code>/<code>FIXTURES_REQUIRED</code> builds a small dependency graph, not
+  a special execution mode.</strong> CTest topologically orders tests so a fixture's
+  setup test runs before, and its cleanup test after, every test that
+  declares it as required — under <code>-j</code>, this constrains the scheduler exactly
+  the way a Makefile's dependency edges constrain parallel <code>make -j</code>, so two
+  tests without any fixture relationship remain free to interleave.</li>
+<li><strong><code>--repeat until-fail:20</code> and <code>--schedule-random</code> target genuine race
+  conditions by perturbing OS-level scheduling, not by changing your code.</strong>
+  Repeating a test 20 times gives a flaky data race (e.g. an unsynchronized
+  static, or a std::thread joined without a barrier) 20 independent chances
+  for the OS scheduler to interleave instructions differently; randomizing
+  the run order additionally perturbs cache state and inter-test timing
+  between otherwise-independent binaries — neither flag does any static
+  analysis, they simply increase the sample size of real, non-deterministic
+  process scheduling until a rare interleaving shows itself.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Take a small library of your own — the <code>textkit</code> above, or your Level 1 project.</p>
 <ol>

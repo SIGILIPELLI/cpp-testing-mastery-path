@@ -1934,6 +1934,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-affected-test-selection-as-a-reachability-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: affected-test selection as a reachability query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-affected-test-selection-as-a-reachability-query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: affected-test selection as a reachability query
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2574,6 +2596,38 @@ other dependency:</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-affected-test-selection-as-a-reachability-query">How It Actually Works: affected-test selection as a reachability query<a class="headerlink" href="#how-it-actually-works-affected-test-selection-as-a-reachability-query" title="Permanent link">&para;</a></h2>
+<p>"Dependency-graph-based affected-test selection" is a concrete graph
+algorithm, not a vague architectural principle — build systems that
+implement it (Bazel's <code>bazel test //...</code> with query, or a custom mapping
+layer over CMake) all reduce to the same computation.</p>
+<ul>
+<li><strong>The build graph already encodes the dependency data — it's reused, not
+  rebuilt.</strong> A build system that tracks header/library dependencies for
+  incremental compilation (so it knows "recompile <code>foo.cpp</code> if <code>bar.h</code>
+  changed") has, as a side effect, a complete directed graph from source
+  files to the object files, libraries, and ultimately test binaries that
+  transitively depend on them. Affected-test selection is a <strong>reverse
+  reachability query</strong> on that same graph: given the set of changed files in
+  a commit, find every test-binary node reachable by following dependency
+  edges backward from those files.</li>
+<li><strong>This is why the graph must be accurate at file granularity, not just
+  target granularity, to be worth anything.</strong> If the dependency data only
+  says "this test target depends on this library target" without tracking
+  which specific headers/sources within the library the test binary actually
+  transitively includes, then any change to any file in a large shared
+  library marks every test that links it as "affected" — collapsing the
+  optimization back to "run everything," which is the actual failure mode
+  behind vague dependency tracking in a large codebase.</li>
+<li><strong>Sharding is a partition of the <em>same</em> registry from Level 1 Module 7, not
+  a different execution model.</strong> <code>--gtest_shard_index=k --gtest_total_shards=N</code>
+  tells one GoogleTest process to only construct and run the subset of its
+  registered <code>TestInfo</code> entries whose position modulo <code>N</code> equals <code>k</code> — the
+  registry, construction, and per-test lifecycle are completely unchanged;
+  sharding just distributes iteration over that one array across N separate
+  OS processes (often on N separate machines) instead of one process running
+  the whole array serially.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Sketch a dependency graph (as a diagram or a nested list) for a

@@ -1182,6 +1182,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-parameterized-tests-death-tests-and-matchers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: parameterized tests, death tests, and matchers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-parameterized-tests-death-tests-and-matchers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: parameterized tests, death tests, and matchers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2618,6 +2640,36 @@ possible time.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-parameterized-tests-death-tests-and-matchers">How It Actually Works: parameterized tests, death tests, and matchers<a class="headerlink" href="#how-it-actually-works-parameterized-tests-death-tests-and-matchers" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>TEST_P</code> generates one class, <code>INSTANTIATE_TEST_SUITE_P</code> stamps out many
+  registrations from it.</strong> <code>TEST_P</code> defines a template-like test class
+  deriving from <code>::testing::TestWithParam&lt;T&gt;</code>, with <code>GetParam()</code> reading a
+  member the harness sets before each run. <code>INSTANTIATE_TEST_SUITE_P</code> is what
+  actually loops over your generator (<code>Values(...)</code>, <code>Range(...)</code>) at static
+  registration time and registers <em>one <code>TestInfo</code> per parameter value</em> into
+  the same registry from Level 1 Module 7 — which is why the test count in
+  your output genuinely multiplies, and why each instantiation gets its own
+  name suffix (<code>/0</code>, <code>/1</code>, ...) baked in at that registration step.</li>
+<li><strong><code>EXPECT_DEATH</code> works by forking, because a crash can't be "caught" in the
+  parent.</strong> It calls <code>fork()</code> (or on some platforms, a thread + exec), runs
+  your statement in the child, and lets the child's <code>SIGSEGV</code>/<code>abort()</code> kill
+  <em>that</em> process while the parent <code>waitpid()</code>s on it and checks the child's
+  exit status and captured stderr against your regex. This is fundamentally
+  different from <code>EXPECT_THROW</code> — a real crash never runs any more C++ code
+  in that process, so there is no exception object to catch; the death test
+  literally sacrifices a child process per assertion, which is also why death
+  tests are slow and why GoogleTest insists they live in suites named
+  <code>*DeathTest</code> (so you can filter them out of routine fast runs).</li>
+<li><strong><code>EXPECT_THAT</code>/matchers are composable predicate objects, not new syntax.</strong>
+  <code>ElementsAre(1, 2, 3)</code> constructs a <code>Matcher&lt;Container&gt;</code> object whose
+  <code>MatchAndExplain</code> method is called with your actual container; matchers like
+  <code>UnorderedElementsAre</code> internally run a bipartite-matching algorithm to find
+  <em>some</em> assignment of actual elements to expected matchers, which is why it
+  reports a specific unmatched element on failure instead of just "not equal."
+  This same <code>Matcher&lt;T&gt;</code> machinery is exactly what GoogleMock (next module)
+  reuses for <code>EXPECT_CALL(mock, Method(matcher))</code> argument matching.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Take the <code>Statistics</code> class you built at the end of Level 1 Module 7 (or write a
 small <code>TextBuffer</code> class if you'd rather start fresh) and rework its suite.</p>

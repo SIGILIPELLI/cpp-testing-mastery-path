@@ -990,6 +990,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-a-crash-report-is-actually-made-of" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what a crash report is actually made of
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2527,6 +2538,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-a-crash-report-is-actually-made-of" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what a crash report is actually made of
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3095,6 +3117,33 @@ this week and one that sits in triage.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-what-a-crash-report-is-actually-made-of">How It Actually Works: what a crash report is actually made of<a class="headerlink" href="#how-it-actually-works-what-a-crash-report-is-actually-made-of" title="Permanent link">&para;</a></h2>
+<p>Section 5's "reporting C/C++ crashes" advice rests on a real mechanism worth
+naming explicitly.</p>
+<ul>
+<li><strong>A signal, not an exception, is what actually happens.</strong> A null-pointer
+  dereference or out-of-bounds write doesn't throw — the CPU's memory
+  management unit raises a hardware fault, the OS turns that into a signal
+  (<code>SIGSEGV</code>, <code>SIGBUS</code>, <code>SIGILL</code>, <code>SIGFPE</code> for integer division by zero), and
+  the default disposition of that signal is to terminate the process and,
+  where enabled, write a core file. There is no C++ exception object to catch
+  — <code>catch (...)</code> never sees a segfault.</li>
+<li><strong>A stack trace is a walk of saved return addresses.</strong> Each function call
+  pushes a return address (and, in a frame-pointer build, a saved frame
+  pointer) onto the stack. A backtrace tool (<code>gdb</code>, <code>addr2line</code>, a crash
+  handler installed via <code>signal()</code>/<code>sigaction()</code>) walks that chain of saved
+  frame pointers back to <code>main</code>, then resolves each address to a
+  function/line using the binary's debug symbols (<code>-g</code>). Strip the symbols or
+  build with heavy inlining and the trace degrades to raw addresses — which
+  is exactly why a good bug report states the exact build flags used.</li>
+<li><strong>"Cannot reproduce" is frequently a real difference in memory layout.</strong>
+  Two builds with different optimization levels, ASLR, or even a different
+  environment variable's length can shift stack/heap addresses enough that a
+  latent out-of-bounds write corrupts a different, non-fatal byte — which is
+  why an environment-free repro is close to worthless for memory bugs, and
+  why later modules reach for ASan/Valgrind to make such corruption
+  deterministic and location-precise instead of address-dependent.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Return to the <code>average()</code> function from Module 1's exercise:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kt">int</span><span class="w"> </span><span class="nf">average</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">values</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">count</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>

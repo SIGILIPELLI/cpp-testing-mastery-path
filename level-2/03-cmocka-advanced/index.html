@@ -1238,6 +1238,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-mocks-queue-and-wraps-link-time-trick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: mock()'s queue and --wrap's link-time trick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-mocks-queue-and-wraps-link-time-trick" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: mock()'s queue and --wrap's link-time trick
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2630,6 +2652,33 @@ most one failure. Prefer many small tests over one long one.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-mocks-queue-and-wraps-link-time-trick">How It Actually Works: <code>mock()</code>'s queue and <code>--wrap</code>'s link-time trick<a class="headerlink" href="#how-it-actually-works-mocks-queue-and-wraps-link-time-trick" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>will_return</code>/<code>mock()</code> is a <code>uintptr_t</code> FIFO keyed by function name.</strong>
+  Internally CMocka keeps a hash table from symbol name to a linked list of
+  queued values; <code>will_return(fn, v)</code> casts <code>v</code> to a <code>uintptr_t</code> and appends
+  it, <code>mock()</code> pops the front and casts it back. Because everything is
+  smuggled through a pointer-width integer, <code>mock()</code> cast to the wrong
+  width — say, reading a <code>long</code> you pushed as an <code>int</code> on a 64-bit LP64
+  platform — reads garbage high bits rather than failing to compile; there is
+  no type safety here at all, which is exactly why <code>mock_type(T)</code> exists as a
+  thin casting wrapper to centralize that risk in one place.</li>
+<li><strong><code>expect_*</code>/<code>check_expected</code> work the same way but store a matcher
+  descriptor instead of a return value</strong>, and <code>check_expected</code> also records
+  a fatal failure via <code>longjmp</code> (same mechanism as Level 1's Unity module) if
+  the queue for that symbol is empty when called — which is why a stray extra
+  call to a mocked function shows up as "no entries for symbol", not as a
+  silent no-op.</li>
+<li><strong><code>--wrap=symbol</code> is a GNU linker (<code>ld</code>) feature, not a CMocka feature.</strong> At
+  link time, <code>-Wl,--wrap=malloc</code> rewrites every <em>undefined</em> reference to
+  <code>malloc</code> in your object files to <code>__wrap_malloc</code>, and rewrites any call to
+  the <em>real</em> <code>malloc</code> to <code>__real_malloc</code> instead — this is pure symbol-table
+  surgery performed by the linker before the binary is even fully formed. It
+  has nothing to do with vtables or macros; it only exists on linkers that
+  implement this flag (GNU <code>ld</code>/<code>gold</code>; not Apple's linker), which is exactly
+  why it silently isn't available on macOS/Clang's default toolchain and a
+  manual function-pointer seam is the portable alternative.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Test a small ring buffer that allocates its storage and reads from a hardware
 seam.</p>

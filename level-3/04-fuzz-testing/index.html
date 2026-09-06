@@ -1631,6 +1631,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-coverage-guided-actually-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what "coverage-guided" actually means
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-what-coverage-guided-actually-means" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: what "coverage-guided" actually means
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2548,6 +2570,43 @@ hand-written oracle beyond "these two must match."</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-what-coverage-guided-actually-means">How It Actually Works: what "coverage-guided" actually means<a class="headerlink" href="#how-it-actually-works-what-coverage-guided-actually-means" title="Permanent link">&para;</a></h2>
+<p>libFuzzer isn't randomly guessing bytes — it's running a genetic algorithm
+whose fitness function is compiler-inserted edge coverage.</p>
+<ul>
+<li><strong><code>-fsanitize=fuzzer</code> instruments every edge in the control-flow graph</strong>,
+  similarly to <code>--coverage</code> in Module 6 of Level 2 but lighter-weight: each
+  edge gets an 8-bit counter that increments (with saturating arithmetic) when
+  that edge is taken. libFuzzer keeps a persistent global bitmap of which
+  edges have ever been hit across the whole fuzzing run — this bitmap, not the
+  literal input bytes, is what "coverage" in the <code>cov:</code> log line counts.</li>
+<li><strong>Every input is scored, and only ones that discover new bitmap bits are
+  kept.</strong> libFuzzer runs your <code>LLVMFuzzerTestOneInput</code> on a candidate input,
+  checks whether the resulting edge bitmap gained bits never seen before; if
+  so, the input is added to the in-memory corpus as a new "interesting" seed.
+  Inputs that touch no new edges are discarded. This is the entire
+  "coverage-guided" mechanism: it's a hill-climbing search where the corpus
+  is the population and "found a new edge" is the sole selection pressure —
+  no understanding of your input format is involved at this level.</li>
+<li><strong>Mutation is dumb; the coverage feedback is what makes it look smart.</strong>
+  Each generation, libFuzzer takes a seed from the corpus and applies cheap
+  mutations — bit flips, byte-insertions, splicing two seeds together,
+  dictionary-token substitution. Most mutants are worthless and get
+  discarded immediately by the coverage check above; the rare mutant that
+  flips one comparison's outcome (e.g. finally matching a magic-number check)
+  gets kept, and future mutations build on it — which is exactly why a seed
+  corpus containing a valid file with the right magic bytes matters so much:
+  without one, the fuzzer may spend enormous CPU time randomly guessing the
+  exact bytes a comparison requires before the coverage bitmap ever grows
+  past that check.</li>
+<li><strong>A crash is caught by the same ASan/UBSan mechanisms from Level 2</strong>,
+  because libFuzzer runs in-process, in a loop, calling your target function
+  directly rather than forking a new process per input (unlike CTest's
+  per-test process model) — which is exactly why non-determinism or stray
+  global state between iterations is so damaging here: it isn't just a
+  correctness worry, it silently corrupts the fuzzer's own coverage
+  bookkeeping and defeats its crash-minimization replay.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Write a <code>LLVMFuzzerTestOneInput</code> target for the checksum-extended

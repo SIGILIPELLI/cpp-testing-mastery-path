@@ -1547,6 +1547,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-gtest_shuffle-exposes-state-leaks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why --gtest_shuffle exposes state leaks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-gtest_shuffle-exposes-state-leaks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why --gtest_shuffle exposes state leaks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2590,6 +2612,33 @@ global) rather than pinning the run order.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-why-gtest_shuffle-exposes-state-leaks">How It Actually Works: why <code>--gtest_shuffle</code> exposes state leaks<a class="headerlink" href="#how-it-actually-works-why-gtest_shuffle-exposes-state-leaks" title="Permanent link">&para;</a></h2>
+<p><code>--gtest_shuffle</code> doesn't analyze your code for shared state — it exploits
+the registry mechanism from Level 1 Module 7 to make hidden dependencies
+observable by brute force.</p>
+<ul>
+<li><strong>The registry is an ordered array; shuffle just permutes it.</strong> Normally
+  GoogleTest walks <code>TestInfo</code> entries in declaration order. With
+  <code>--gtest_shuffle --gtest_random_seed=N</code>, it seeds a PRNG with <code>N</code> and
+  applies a Fisher-Yates permutation to that same array before iterating —
+  the set of tests and their individual bodies are completely unchanged;
+  only the sequence of <code>construct → SetUp → TestBody → TearDown → destruct</code>
+  calls across <em>different</em> test instances is reordered.</li>
+<li><strong>A state leak survives only through something that isn't reconstructed
+  per test.</strong> Per-test member variables are destroyed and freshly constructed
+  every time (point 3 back in Module 7), so shuffling can't affect them. What
+  it <em>can</em> affect is anything with lifetime longer than one test: a
+  file-scope <code>static</code>, a Meyer's singleton, a leftover row in a shared test
+  database, an environment variable set and never unset. Running order A→B
+  might have A's leftover state be exactly what B's (buggy, unwritten)
+  assumption needs; running order B→A exposes that B never actually
+  initialized what it depends on.</li>
+<li><strong>The fixed seed is what makes a shuffle-caused failure reproducible rather
+  than "flaky."</strong> Reporting <code>--gtest_random_seed=N</code> alongside a shuffled
+  failure lets anyone re-run the <em>exact same permutation</em> deterministically —
+  turning what looks like nondeterminism into a fully repeatable ordering bug,
+  which is the entire point of using a PRNG instead of true randomness here.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Take the <code>Router</code> from section 2 and extend it into a small integration
 suite for a mini web framework:</p>

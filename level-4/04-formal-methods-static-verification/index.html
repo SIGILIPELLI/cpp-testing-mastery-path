@@ -2007,6 +2007,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-from-c-source-to-a-sat-solvers-yesno" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: from C source to a SAT solver's yes/no
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-from-c-source-to-a-sat-solvers-yesno" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: from C source to a SAT solver's yes/no
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2585,6 +2607,47 @@ directly, without needing the unlucky schedule to occur at all.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-from-c-source-to-a-sat-solvers-yesno">How It Actually Works: from C source to a SAT solver's yes/no<a class="headerlink" href="#how-it-actually-works-from-c-source-to-a-sat-solvers-yesno" title="Permanent link">&para;</a></h2>
+<p>CBMC's "symbolic, unconstrained" execution from section 2 is a concrete
+translation pipeline, not a metaphor — this is the mechanism that turns your
+C function into something a solver can answer.</p>
+<ol>
+<li><strong>Loop unwinding turns your program into a straight-line (loop-free)
+   formula.</strong> CBMC replaces every loop with <code>--unwind N</code> copies of its body
+   plus an assertion that the loop actually terminated within N iterations
+   (the "unwinding assertion"). This is mechanically necessary because the
+   next step needs a finite, loop-free control-flow graph — it's also
+   exactly why the bound is a real limitation: a bug that only manifests on
+   the 11th iteration is invisible to <code>--unwind 10</code> because that execution
+   path was never even encoded into the formula.</li>
+<li><strong>Every variable becomes a symbolic bitvector, and every operation becomes
+   a logical constraint over those bitvectors.</strong> Instead of running the
+   function on a concrete input, CBMC represents an <code>int</code> as 32 unconstrained
+   boolean bits, and represents <code>x + y</code> as the circuit-level constraint that
+   the standard binary-addition logic (with carries) would impose on those
+   bits — this is the same bit-level modeling a hardware description
+   language uses, which is not a coincidence: CBMC descends from
+   hardware-verification tooling.</li>
+<li><strong>The whole function, plus a negated version of your assertion, becomes
+   one giant Boolean satisfiability (SAT) formula.</strong> CBMC asks: "is there any
+   assignment of the input bitvectors that satisfies all the control-flow
+   and data constraints <em>and</em> makes the property false?" It hands that
+   formula to a SAT (or SMT, for richer types) solver — the same class of
+   solver used in chip design verification — which either returns
+   <strong>UNSAT</strong> ("no such input exists — the property holds for every possible
+   input within the unwind bound") or <strong>SAT</strong> with a concrete satisfying
+   assignment, which CBMC translates back into an actual C counterexample:
+   specific input values and the specific execution trace that violates your
+   assertion.</li>
+<li><strong>This is why a CBMC "proof" is really "proof, conditioned on the unwind
+   bound being sufficient," and why it scales by state-space size rather than
+   by code size</strong> — the SAT formula's size grows with the number of distinct
+   execution paths and the width of the symbolic values involved, which is
+   why formal verification tools target small, isolated functions: the
+   formula for a whole subsystem with many interacting components becomes too
+   large for any solver to decide in practical time, the literal mechanism
+   behind "state space explosion."</li>
+</ol>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Write a CBMC-style harness (as in section 2, even without running it)

@@ -1294,6 +1294,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-ubsan-inserts-checks-the-optimizer-would-otherwise-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: UBSan inserts checks the optimizer would otherwise trust
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-ubsan-inserts-checks-the-optimizer-would-otherwise-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: UBSan inserts checks the optimizer would otherwise trust
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2618,6 +2640,40 @@ directories, separate CI jobs.</p>
 <p>The last one is especially insidious: GCC and Clang both warn about it, and both
 also <em>optimise on the assumption it never happens</em>, so ignoring the warning can
 change control flow elsewhere in the function.</p>
+<h2 id="how-it-actually-works-ubsan-inserts-checks-the-optimizer-would-otherwise-trust">How It Actually Works: UBSan inserts checks the optimizer would otherwise trust<a class="headerlink" href="#how-it-actually-works-ubsan-inserts-checks-the-optimizer-would-otherwise-trust" title="Permanent link">&para;</a></h2>
+<p>UBSan's mechanism is compile-time instrumentation like ASan (Module 4), but it
+checks <em>language-rule violations</em> rather than memory addresses, which is a
+different and narrower kind of check.</p>
+<ul>
+<li><strong>The compiler already "knows" where UB can occur — because it exploits it.</strong>
+  Optimization passes routinely reason "signed overflow is UB, so I may assume
+  <code>x + 1 &gt; x</code> is always true and delete the branch that handles the false
+  case." <code>-fsanitize=undefined</code> hooks into that same compile-time analysis,
+  but instead of <em>exploiting</em> the assumption for optimization, it emits a
+  runtime check that verifies the assumption held, before the surrounding
+  optimizations that depend on it are allowed to matter. That's why UBSan and
+  aggressive optimization coexist: the check runs first, and only if it
+  passes does the optimized code (which assumed no UB) execute correctly.</li>
+<li><strong>Each UBSan checker targets one specific rule from the C/C++ standard,
+  compiled to a narrow inline guard.</strong> <code>signed-integer-overflow</code> inserts an
+  overflow-flag check around <code>+</code>/<code>-</code>/<code>*</code> on signed operands (on x86 this can
+  literally be a check of the CPU's overflow flag after the arithmetic
+  instruction); <code>shift</code> checks the shift amount against the operand's bit
+  width before executing the shift instruction, because a shift by ≥ the
+  width is itself UB and many CPUs' shift instructions silently mask the
+  count rather than producing zero; <code>null</code> checks a pointer against zero
+  immediately before a dereference or member access, not relying on the
+  hardware fault because plain pointer arithmetic on a null pointer (without
+  a dereference) is also UB and produces no fault at all.</li>
+<li><strong>"Missing return" UB is why the check exists independent of any crash.</strong>
+  When control falls off the end of a value-returning function, the actual
+  return value is whatever bit pattern happened to be sitting in the return
+  register or stack slot — there's no fault to catch, because reading garbage
+  isn't a memory-safety violation, it's a <em>language-contract</em> violation. UBSan
+  instruments the function's fall-through path specifically to detect this
+  case, which is the clearest illustration that UBSan checks "did the program
+  follow C++'s rules," not "did the program touch memory it shouldn't."</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Build a UB museum and then close it down.</p>
 <ol>

@@ -1232,6 +1232,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-mock_method-intercepts-a-call-via-the-vtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how MOCK_METHOD intercepts a call via the vtable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2371,6 +2382,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-mock_method-intercepts-a-call-via-the-vtable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how MOCK_METHOD intercepts a call via the vtable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2658,6 +2680,47 @@ failure message shows the actual value.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-how-mock_method-intercepts-a-call-via-the-vtable">How It Actually Works: how <code>MOCK_METHOD</code> intercepts a call via the vtable<a class="headerlink" href="#how-it-actually-works-how-mock_method-intercepts-a-call-via-the-vtable" title="Permanent link">&para;</a></h2>
+<p>Mocking a C++ interface works because virtual dispatch is already a runtime
+indirection — GoogleMock just puts its own function at the other end of it.</p>
+<ol>
+<li><strong>A virtual call is a pointer lookup, not a direct call.</strong> Any object with
+   virtual methods carries a hidden vtable pointer as its first member. Every
+   <code>obj-&gt;VirtualMethod(args)</code> compiles to: load the vtable pointer from
+   <code>obj</code>, load the function pointer at that method's fixed slot index in the
+   vtable, then call through that pointer. The compiler decided the <em>slot
+   index</em> at compile time from the class declaration, but the <em>address stored
+   at that slot</em> is decided at object-construction time. That's the entire
+   seam mocking exploits.</li>
+<li><strong><code>MOCK_METHOD(R, Name, (Args...), (overrides))</code> generates an override that
+   points that vtable slot at GoogleMock's machinery instead of your logic.</strong>
+   The macro expands into a real <code>Name(Args...) override</code> method whose body
+   calls <code>GMOCK_MOCKER_(...)-&gt;Invoke(...)</code>. Because it's declared <code>override</code>
+   on a method whose interface base class declared it <code>virtual</code>, constructing
+   a <code>MockFoo</code> object naturally writes GoogleMock's <code>Name</code> into the same
+   vtable slot the real <code>Foo</code> would have used — no linker tricks, no
+   monkey-patching, just ordinary C++ dynamic dispatch pointed at generated
+   code.</li>
+<li><strong>This is exactly why GoogleMock can only mock virtual methods (or, with
+   more setup, template-parameterized seams) and not arbitrary free functions
+   or non-virtual methods</strong> — a non-virtual call is resolved statically at
+   compile time by name, with no indirection to intercept. It's the same
+   reason Level 1's CMocka module needed a <em>manual</em> function-pointer or
+   <code>#ifdef</code> seam for C: C has no vtable to hijack, so the seam has to be built
+   by hand instead of being a free side effect of the language's dispatch
+   mechanism.</li>
+<li><strong><code>EXPECT_CALL</code> builds an expectation object that <code>Invoke()</code> consults at
+   call time.</strong> Each <code>EXPECT_CALL</code> registers a <code>{matcher, cardinality,
+   actions}</code> tuple on the mock. When the intercepted call fires, GoogleMock's
+   <code>Invoke()</code> walks the mock's registered expectations (in an order that
+   depends on <code>InSequence</code> blocks), finds the first unsatisfied match, applies
+   its <code>WillOnce</code>/<code>WillRepeatedly</code> action to compute a return value, and
+   increments that expectation's call count — which is also the data
+   structure <code>Times()</code> cardinality checks are validated against when the mock
+   is destroyed or <code>VerifyAndClearExpectations</code> runs. An "uninteresting call"
+   warning fires precisely when <code>Invoke()</code> finds no matching expectation at
+   all.</li>
+</ol>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Build a small <code>BackupService</code> and test it entirely with mocks.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">Clock</span><span class="w">      </span><span class="p">{</span><span class="w"> </span><span class="k">public</span><span class="o">:</span><span class="w"> </span><span class="k">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">Clock</span><span class="p">()</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">default</span><span class="p">;</span>

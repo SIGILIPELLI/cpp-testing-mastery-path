@@ -1046,6 +1046,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-cc-specific-boundaries-at-the-bit-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: C/C++-specific boundaries at the bit level
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2583,6 +2594,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-cc-specific-boundaries-at-the-bit-level" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: C/C++-specific boundaries at the bit level
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3272,6 +3294,31 @@ signature.</p>
 <li><strong>Re-run the whole affected area after a fix</strong> — the fix is a change, and
    changes cause regressions (Module 3).</li>
 </ol>
+<h2 id="how-it-actually-works-cc-specific-boundaries-at-the-bit-level">How It Actually Works: C/C++-specific boundaries at the bit level<a class="headerlink" href="#how-it-actually-works-cc-specific-boundaries-at-the-bit-level" title="Permanent link">&para;</a></h2>
+<p>Section 3's "C/C++-specific boundaries" are not arbitrary extra rows in a
+table — each one corresponds to a concrete representation limit.</p>
+<ul>
+<li><strong>Integer boundaries are two's-complement wraparound points.</strong> A signed
+  <code>int</code> boundary test at <code>INT_MAX</code> matters because <code>INT_MAX + 1</code> is undefined
+  behaviour by the standard, but on nearly every real compiler it produces the
+  bit pattern for <code>INT_MIN</code> — the sign bit simply flips because two's
+  complement has no separate "overflow" state, it just keeps incrementing the
+  bit pattern. Testing at that exact value is testing whether your code
+  assumed arithmetic saturates (it doesn't) or wraps predictably (with <code>-O2</code>
+  and UB, it might not even do that).</li>
+<li><strong>Buffer boundaries are literally the one-past-the-end address.</strong> A loop
+  bound off-by-one at <code>array[n]</code> reads or writes the byte immediately after
+  the allocation. Whether that crashes, corrupts an adjacent variable, or
+  silently "works" depends entirely on what the allocator placed next in
+  memory — which is why the same off-by-one bug can pass on your machine and
+  crash on CI: heap layout differs run to run.</li>
+<li><strong>Floating-point boundaries hit representation, not magnitude.</strong> Testing at
+  <code>0.1 + 0.2</code> or near <code>FLT_EPSILON</code> targets the fact that IEEE-754 cannot
+  represent most decimal fractions exactly — the bug isn't "the number is
+  big," it's that the stored bit pattern is provably not equal to the
+  mathematically expected value, so any test that does exact equality on a
+  float boundary needs a tolerance instead of <code>==</code>.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>You are testing this C function:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="cm">/* REQ-BUF-002: ring_write() copies n bytes from src into the ring buffer rb.</span>

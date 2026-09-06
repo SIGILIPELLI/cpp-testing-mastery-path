@@ -1350,6 +1350,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-where-each-seam-actually-intercepts-the-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: where each seam actually intercepts the call
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-where-each-seam-actually-intercepts-the-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: where each seam actually intercepts the call
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2688,6 +2710,38 @@ bug through, and your suite will be green the whole time.</p>
 <p>The discipline is layered: unit tests against fakes for logic and error paths;
 <strong>integration tests against the real dependency</strong> for the assumptions the fakes
 encode. If you never run against real hardware, you have tested your fake.</p>
+<h2 id="how-it-actually-works-where-each-seam-actually-intercepts-the-call">How It Actually Works: where each seam actually intercepts the call<a class="headerlink" href="#how-it-actually-works-where-each-seam-actually-intercepts-the-call" title="Permanent link">&para;</a></h2>
+<p>The different "seam" techniques earlier in this module aren't interchangeable
+style choices — each one intercepts the real hardware/OS call at a different
+point in the build/link/run pipeline, which is why they have different
+blast radii.</p>
+<ul>
+<li><strong>A link seam swaps object files at link time.</strong> If your test build links
+  <code>fake_hal.o</code> instead of <code>real_hal.o</code> for the same declared symbols, the
+  linker resolves every call to those symbols against the fake's definitions
+  — the compiled call sites in your logic code are byte-identical between
+  test and production builds; only the <em>linker's symbol resolution</em> differs.
+  This is the safest seam precisely because it changes nothing upstream of
+  the link step.</li>
+<li><strong>A preprocessor seam (<code>#define read_reg fake_read_reg</code>) intercepts before
+  the compiler ever sees the real name.</strong> Token substitution happens in the
+  earliest translation phase, so the compiled object code for the test build
+  contains calls to <code>fake_read_reg</code> baked in — there is no <code>read_reg</code> symbol
+  reference left for the linker to resolve differently. That's the mechanical
+  reason this technique "hides real code": the test binary and the shipped
+  binary are compiled from textually different source, not just linked
+  differently, so a codegen-affecting bug in the macro itself never appears
+  in either build's test coverage.</li>
+<li><strong>A function-pointer seam intercepts at run time, through an extra load.</strong>
+  Instead of calling <code>read_reg()</code> directly, production code calls through a
+  pointer variable (<code>g_read_reg_fn(...)</code>) that production <code>main()</code>
+  initializes to the real function and test setup reinitializes to a fake.
+  The compiled call site is identical between builds — the indirection is
+  the same idea as GoogleMock's vtable slot (Module 2), just implemented by
+  hand with a raw function pointer instead of virtual dispatch, which is
+  exactly why it's the standard portable technique for C code with no
+  classes and no linker <code>--wrap</code> support.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>Build a thermostat controller with every dependency faked, then verify the fakes.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="cm">/* Turns heating on below (target - hysteresis), off above (target + hysteresis).</span>

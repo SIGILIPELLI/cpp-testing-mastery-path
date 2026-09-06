@@ -2147,6 +2147,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-constructor-attributes-vs-c-static-init-and-why-order-is-unspecified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: constructor attributes vs. C++ static init, and why order is unspecified
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2298,6 +2309,17 @@
     <span class="md-ellipsis">
       
         Cheat sheet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-actually-works-constructor-attributes-vs-c-static-init-and-why-order-is-unspecified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: constructor attributes vs. C++ static init, and why order is unspecified
       
     </span>
   </a>
@@ -2643,6 +2665,41 @@ reason to choose it when either of those already fits.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-constructor-attributes-vs-c-static-init-and-why-order-is-unspecified">How It Actually Works: constructor attributes vs. C++ static init, and why order is unspecified<a class="headerlink" href="#how-it-actually-works-constructor-attributes-vs-c-static-init-and-why-order-is-unspecified" title="Permanent link">&para;</a></h2>
+<p>Section 1 already showed <code>__attribute__((constructor))</code> doing the
+registration work — worth being precise about how it compares to
+GoogleTest's mechanism (Level 1 Module 7) and what it does <em>not</em> guarantee.</p>
+<ul>
+<li><strong>Both rely on code running before <code>main()</code>, but through different
+  compiler/linker features.</strong> GoogleTest's registration runs via C++'s
+  language-defined static-initialization order rules (constructors of
+  namespace-scope objects run before <code>main</code>). <code>__attribute__((constructor))</code>
+  is a GCC/Clang extension with no equivalent in the C standard: it places
+  the function's address into a special linker section (<code>.init_array</code> on
+  ELF platforms), and the C runtime startup code, before calling <code>main</code>,
+  iterates that section calling every function pointer in it. This is why
+  the trick is portable across GCC/Clang but not to every compiler — MSVC
+  needs a different mechanism (<code>#pragma section</code> and manually placed
+  pointers) to achieve the same effect.</li>
+<li><strong>Neither mechanism guarantees a specific order across translation
+  units, only that "before main" holds.</strong> Within one <code>.init_array</code> section
+  the linker generally preserves link order, but that order is an
+  implementation detail of the toolchain, not a language guarantee — which is
+  exactly why both GoogleTest and this module's framework need the
+  <code>--gtest_shuffle</code>-style discipline (or, here, simply not depending on
+  registration order at all): a test suite correctness argument that
+  silently assumes "test A registers before test B" is relying on
+  unspecified behavior that a different linker version could break.</li>
+<li><strong>The exit-code wiring in section 4 is not incidental glue — it's the same
+  process-boundary contract from Level 1 Module 1, now traced all the way
+  through a framework you wrote yourself.</strong> <code>main()</code> here has to explicitly
+  track a global failure counter across every <code>MT_TEST</code>/<code>MT_TEST_F</code>
+  invocation and <code>return (failures &gt; 0) ? 1 : 0;</code> — GoogleTest does the exact
+  same bookkeeping internally in <code>RUN_ALL_TESTS()</code>, just hidden behind more
+  layers; writing it by hand here is what makes visible that "a testing
+  framework" is, at its irreducible core, nothing more than: run some
+  functions, count what failed, return non-zero if anything did.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Build and run <code>example_tests.c</code> exactly as shown, confirm the same

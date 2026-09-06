@@ -1951,6 +1951,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-a-misra-checker-proves-a-rule-mechanically" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how a MISRA checker proves a rule, mechanically
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-a-misra-checker-proves-a-rule-mechanically" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how a MISRA checker proves a rule, mechanically
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2542,6 +2564,38 @@ additional evidence.</strong></p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-how-a-misra-checker-proves-a-rule-mechanically">How It Actually Works: how a MISRA checker proves a rule, mechanically<a class="headerlink" href="#how-it-actually-works-how-a-misra-checker-proves-a-rule-mechanically" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>A MISRA rule is checked the same way clang-tidy checks any rule — by
+  pattern-matching over the AST/CFG (Level 2 Module 9) — but MISRA rules are
+  chosen specifically because they eliminate constructs whose <em>meaning</em>
+  static analysis (or a human) cannot fully pin down.</strong> Rule 10.1 (no
+  implicit conversions between "essentially different" types) exists because
+  C's implicit conversion rules are numerous and easy to misjudge by eye; a
+  checker can enumerate every implicit conversion in the AST and flag ones
+  outside the permitted matrix, which is a purely syntactic check requiring
+  no execution.</li>
+<li><strong>"Coverage" under DO-178C/ISO 26262 is measured with the same <code>.gcno</code>/
+  <code>.gcda</code> control-flow-edge instrumentation from Level 2 Module 6, extended
+  to distinguish individual boolean sub-conditions rather than just
+  branches.</strong> An MC/DC-capable coverage tool instruments each atomic
+  condition inside a compound decision separately (not just the overall
+  true/false outcome of the <code>if</code>), which is why ordinary <code>lcov</code> — built for
+  line/branch coverage — cannot report MC/DC directly: its instrumentation
+  granularity stops at the branch, one level short of what MC/DC needs.</li>
+<li><strong>Tool qualification is really a claim about the tool's own test suite, not
+  about your code.</strong> A "qualified" static analyzer or compiler has itself
+  been through documented verification proving it doesn't silently
+  mis-report a violation as clean, or (for a compiler) doesn't generate
+  incorrect object code from correct source — because if the tool used to
+  produce your evidence is unreliable, every artifact it generated is
+  suspect regardless of how rigorous your own process was. This is why
+  standards distinguish a "verification tool" (whose output is cross-checked
+  by another means, so it needs less qualification) from a "development
+  tool" whose output ships directly (needing full qualification) — the
+  qualification burden tracks how directly the tool's own correctness
+  becomes your code's correctness.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Take one function from an earlier module in this path (e.g. <code>frame_parse</code>

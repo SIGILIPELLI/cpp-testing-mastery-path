@@ -1990,6 +1990,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-generating-a-traceability-matrix-instead-of-maintaining-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: generating a traceability matrix instead of maintaining one
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-generating-a-traceability-matrix-instead-of-maintaining-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: generating a traceability matrix instead of maintaining one
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2564,6 +2586,39 @@ traceability matrix specifically only accounts for the first.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-generating-a-traceability-matrix-instead-of-maintaining-one">How It Actually Works: generating a traceability matrix instead of maintaining one<a class="headerlink" href="#how-it-actually-works-generating-a-traceability-matrix-instead-of-maintaining-one" title="Permanent link">&para;</a></h2>
+<p>A traceability matrix built by hand rots the moment a test is renamed or a
+requirement is renumbered — the working version of this practice is a
+generated artifact produced by scanning two independent, machine-readable
+sources and computing a join.</p>
+<ul>
+<li><strong>The requirement ID has to be embedded as a token the test source
+  actually carries at build/parse time</strong>, not just documented in a wiki next
+  to it — commonly a comment annotation (<code>// @req REQ-042</code>) or a GoogleTest
+  suite/case name convention (<code>TEST(REQ042_Suite, ...)</code>) that a script can
+  extract with a regex over the source tree, or (more robustly) a custom
+  attribute registered via GoogleTest's <code>RecordProperty()</code> API, which
+  attaches arbitrary key/value metadata to a <code>TestInfo</code> at runtime and shows
+  up in the JUnit XML export from Level 1 Module 9 — meaning the same XML
+  file already flowing into your CI dashboard can double as the traceability
+  data source with no separate scan needed.</li>
+<li><strong>Building the matrix is a set join, not a lookup table someone fills in.</strong>
+  A generator script reads the full list of requirement IDs from the
+  requirements document (or a structured export of it) as set R, reads the
+  set of requirement-ID annotations actually present across the test suite
+  as set S (via the regex/RecordProperty scan above), and computes: <code>R - S</code>
+  (requirements with no annotated test — an orphan requirement, a genuine
+  gap) and <code>S - R</code> (annotated tests referencing an ID that no longer exists
+  in R — an orphan test, evidence of a stale or renumbered requirement). This
+  is exactly a two-set difference computation; there is no manual matching
+  step to get wrong once the annotation convention is enforced consistently.</li>
+<li><strong>This is why "encode IDs at the source" beats a separately-maintained
+  spreadsheet mechanically, not just organizationally</strong>: the moment a test is
+  deleted, renamed, or a requirement renumbered, the <em>next</em> CI run's
+  generated matrix reflects that automatically, because the matrix is
+  recomputed from the current state of both sets on every run rather than
+  being an artifact someone has to remember to update by hand.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Write three requirements (<code>REQ-...</code> style) for the <code>BoundedStack</code> from

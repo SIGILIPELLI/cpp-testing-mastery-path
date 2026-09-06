@@ -973,6 +973,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-the-four-levels-are-a-mechanical-hierarchy-not-just-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why the four levels are a mechanical hierarchy, not just process
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2549,6 +2560,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-the-four-levels-are-a-mechanical-hierarchy-not-just-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why the four levels are a mechanical hierarchy, not just process
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3008,6 +3030,31 @@ stream and publishes averaged values.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-why-the-four-levels-are-a-mechanical-hierarchy-not-just-process">How It Actually Works: why the four levels are a mechanical hierarchy, not just process<a class="headerlink" href="#how-it-actually-works-why-the-four-levels-are-a-mechanical-hierarchy-not-just-process" title="Permanent link">&para;</a></h2>
+<p>The unit → integration → system → acceptance ladder maps directly onto what is
+actually being linked and executed at each stage.</p>
+<ul>
+<li><strong>Unit tests link against a single translation unit (or a small handful),
+  with everything else stubbed.</strong> The test binary's link step pulls in the
+  function under test and nothing beyond it — any missing symbol either fails
+  the link or is satisfied by a hand-written stub/mock object file. This is
+  why unit tests are fast: the binary is small and there is no real I/O.</li>
+<li><strong>Integration tests change what gets linked, not how tests are written.</strong>
+  The same <code>TEST()</code> macros run, but the build now links the real collaborator
+  object files (or a shared library) instead of stubs, so calls cross real
+  ABI boundaries — struct layout, calling convention, and vtable slots must
+  actually agree between components, which is exactly the class of bug unit
+  tests with mocked collaborators cannot see.</li>
+<li><strong>System tests exercise the finished, statically or dynamically linked
+  executable as an OS process</strong>, driven through its real entry point (<code>main</code>)
+  and real external interfaces (files, sockets, CLI args) — there is no test
+  framework inside the process at all; the "test" is an external harness
+  checking the process's outputs and exit code.</li>
+<li><strong>Acceptance tests add nothing new at the machine level</strong> — they are system
+  tests whose expected results are phrased against the requirement/contract
+  instead of the implementation, which is a documentation distinction, not an
+  execution one.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>You are handed a small C++ library, <code>libconfig</code>, which:</p>
 <ul>

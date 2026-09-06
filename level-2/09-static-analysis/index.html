@@ -1406,6 +1406,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-analysis-without-ever-running-the-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: analysis without ever running the program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2327,6 +2338,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-analysis-without-ever-running-the-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: analysis without ever running the program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2678,6 +2700,39 @@ seconds is worth more than the same finding from a forty-minute nightly job.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-analysis-without-ever-running-the-program">How It Actually Works: analysis without ever running the program<a class="headerlink" href="#how-it-actually-works-analysis-without-ever-running-the-program" title="Permanent link">&para;</a></h2>
+<p>Static analyzers find bugs by symbolically simulating your program's
+possible states, not by executing it — which is what lets them see paths a
+test suite never reaches, and also what causes their false positives.</p>
+<ul>
+<li><strong><code>compile_commands.json</code> is why clang-tidy needs <code>-p</code>.</strong> clang-tidy is
+  built on the same Clang frontend that compiles your code, so to build an
+  accurate AST it needs the exact same include paths, defines, and standard
+  version your real build uses — the compilation database is literally a
+  JSON record of the exact compiler invocation CMake used for each <code>.cpp</code>
+  file. Without it, clang-tidy guesses flags, parses your headers under the
+  wrong assumptions, and reports phantom errors that are really just parse
+  failures, not real findings.</li>
+<li><strong>Symbolic execution is how the overflow in §5 gets found without running
+  the code.</strong> Rather than substituting concrete values, the analyzer tracks
+  <em>value ranges and constraints</em> per variable along each branch of the
+  control-flow graph — "at this program point, <code>x</code> is known to be in
+  <code>[0, 100]</code> because of the <code>if</code> above." When an operation like <code>x * y</code> could
+  produce a value outside the representable range given the tracked
+  constraints, it flags a potential overflow on that specific path, even if
+  no test ever drives <code>x</code> and <code>y</code> to the exact values that would trigger it
+  at runtime. This is exactly the class of bug sanitizers (Module 4-5) can
+  only catch if a test actually executes the bad values — static analysis
+  and sanitizers are complementary because one reasons about <em>all possible</em>
+  values on a path, the other observes <em>one actual</em> execution.</li>
+<li><strong><code>cppcheck</code>'s and clang-tidy's checks are literally separate passes with
+  independent false-positive rates</strong>, which is why <code>--enable=all</code> in CI is a
+  trap: each additional check pass adds its own analysis over the same AST/CFG,
+  and low-confidence checks (style, "possible" null dereference from
+  imprecise alias analysis) drown the small number of high-confidence
+  findings a reviewer would otherwise act on — the fix isn't a smarter tool,
+  it's curating which passes you trust enough to fail the build on.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>

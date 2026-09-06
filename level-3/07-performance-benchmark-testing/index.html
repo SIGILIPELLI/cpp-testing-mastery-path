@@ -1715,6 +1715,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-a-microbenchmark-avoids-measuring-noise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how a microbenchmark avoids measuring noise
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-how-a-microbenchmark-avoids-measuring-noise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: how a microbenchmark avoids measuring noise
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2559,6 +2581,47 @@ number of comparisons made to get there.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-how-a-microbenchmark-avoids-measuring-noise">How It Actually Works: how a microbenchmark avoids measuring noise<a class="headerlink" href="#how-it-actually-works-how-a-microbenchmark-avoids-measuring-noise" title="Permanent link">&para;</a></h2>
+<p>Getting a trustworthy nanosecond-scale measurement out of a modern CPU is
+harder than it looks, and Google Benchmark's design is a direct response to
+specific hardware and compiler behaviors.</p>
+<ul>
+<li><strong>The optimizer will delete your benchmark if you let it.</strong> If a benchmark
+  computes a value and never uses it, the compiler is entitled to prove the
+  computation has no observable effect and eliminate it entirely (dead-code
+  elimination) — you'd measure an empty loop. <code>benchmark::DoNotOptimize(x)</code>
+  works by taking <code>x</code> through an inline-assembly statement with an empty
+  effect that the compiler must treat as "this value's memory was read by
+  something opaque," which forces the preceding computation to actually
+  happen — it's a compiler-barrier trick, not a real side effect.
+  <code>ClobberMemory()</code> similarly emits an inline-asm memory barrier so the
+  compiler can't reorder/cache stores around it.</li>
+<li><strong>The loop count is chosen by the library, not by you, because timer
+  resolution has a floor.</strong> <code>for (auto _ : state)</code> runs your code an
+  auto-tuned number of iterations, chosen by first estimating the operation's
+  cost with a short calibration run, then computing how many repetitions are
+  needed for the <em>total</em> measured wall-clock time to comfortably exceed the
+  timer's resolution and typical OS scheduling jitter (tens of
+  microseconds). A single iteration of a 2ns operation is unmeasurable noise
+  next to <code>clock_gettime</code>'s own overhead; averaging over a million iterations
+  divides that noise down to something meaningful.</li>
+<li><strong><code>-&gt;Complexity()</code> fits your measured <code>(N, time)</code> pairs against candidate
+  growth functions using least-squares regression</strong>, exactly the same
+  curve-fitting idea as fitting a line to scattered data points — it computes
+  a best-fit coefficient for each candidate shape (<code>O(N)</code>, <code>O(N log N)</code>,
+  <code>O(N²)</code>) and reports whichever has the lowest residual sum of squares. A
+  "binary" search whose fit favors O(N) over O(log N) means the <em>measured
+  wall-clock growth curve</em> — not a code read-through — proves the algorithm
+  isn't actually bisecting, which is a fundamentally different kind of
+  evidence than a functional test that only checks the returned index.</li>
+<li><strong>Repetition and statistics exist because context-switches and CPU
+  frequency scaling are real confounds.</strong> <code>--benchmark_repetitions=N</code> reruns
+  the whole benchmark N times and reports median/mean/stddev because a single
+  run can be skewed by the OS scheduler preempting your process mid-measurement
+  or the CPU's dynamic frequency scaling briefly throttling under thermal
+  load — statistics across repetitions is how you separate "the algorithm is
+  slower" from "a neighboring process stole a timeslice."</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Write a <code>BENCHMARK_F</code> fixture benchmarking three implementations of

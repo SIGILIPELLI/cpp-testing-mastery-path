@@ -845,6 +845,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-from-assert-to-a-red-x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: from "assert" to a red X
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2405,6 +2416,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-from-assert-to-a-red-x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: from "assert" to a red X
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2891,6 +2913,29 @@ a convenience, it is the only way to observe an entire class of defects.</p>
 </table>
 <p>A defect that is never executed never causes a failure — which is exactly why
 untested code paths are where bugs live.</p>
+<h2 id="how-it-actually-works-from-assert-to-a-red-x">How It Actually Works: from "assert" to a red X<a class="headerlink" href="#how-it-actually-works-from-assert-to-a-red-x" title="Permanent link">&para;</a></h2>
+<p>Every testing tool in this course — GoogleTest, Unity, CMocka, <code>ctest</code> — sits on
+top of the same three-layer mechanism, and it's worth seeing it once explicitly
+before you meet the macros.</p>
+<ol>
+<li><strong>The check is a plain runtime comparison.</strong> <code>ASSERT_EQ(a, b)</code> or
+   <code>assert(a == b)</code> compiles down to an ordinary <code>if</code> that compares two values
+   at the machine level — there is no "testing mode" in the CPU. The only thing
+   special about test code is what happens on the <em>false</em> branch.</li>
+<li><strong>Failure is signalled through the same channels every program has:</strong> a
+   non-zero process exit code, a write to <code>stderr</code>, or (for <code>assert()</code>) a call
+   to <code>abort()</code> that raises <code>SIGABRT</code>. A test framework's real job is to <em>catch</em>
+   these signals per-test rather than let one failure kill the whole process —
+   GoogleTest does this by wrapping each <code>TEST()</code> body in a way that records a
+   failed comparison and keeps running instead of calling <code>abort()</code>.</li>
+<li><strong>The runner aggregates exit statuses.</strong> <code>ctest</code>, or a CI job, launches each
+   test binary (or each registered case) as a child process, inspects its exit
+   code, and turns "0 for pass / non-zero for fail" into the red/green report
+   you see. That translation — machine exit code to human pass/fail — is the
+   entire mechanical foundation every tool in this path builds on. Everything
+   from here on (fixtures, mocks, sanitizers, coverage) is instrumentation
+   layered around this same exit-code contract.</li>
+</ol>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <p>No code for this one — it's an analysis exercise, and the reasoning is the
 point.</p>

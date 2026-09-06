@@ -1855,6 +1855,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-asan-and-tsan-cant-be-combined-in-one-binary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why ASan and TSan can't be combined in one binary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stretch-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2417,6 +2428,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-asan-and-tsan-cant-be-combined-in-one-binary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why ASan and TSan can't be combined in one binary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#stretch-goals" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2766,6 +2788,37 @@ runner where the dependency is present via the distro's clang package.</p>
 <a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="c1"># Structural only (needs libFuzzer runtime / a working CI runner):</span>
 <a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a><span class="c1"># ./fuzz_parser -max_total_time=60 fuzz/corpus/</span>
 </code></pre></div>
+<h2 id="how-it-actually-works-why-asan-and-tsan-cant-be-combined-in-one-binary">How It Actually Works: why ASan and TSan can't be combined in one binary<a class="headerlink" href="#how-it-actually-works-why-asan-and-tsan-cant-be-combined-in-one-binary" title="Permanent link">&para;</a></h2>
+<p>Notice the pipeline above compiles two <em>separate</em> binaries — one with
+<code>-fsanitize=address,undefined</code>, another with <code>-fsanitize=thread</code> — rather
+than one binary with all three. This isn't pipeline sprawl for its own sake;
+it's forced by how the sanitizers implement themselves.</p>
+<ul>
+<li><strong>Both ASan and TSan need exclusive control of the same resources</strong>: a
+  large reserved region of virtual address space for their respective shadow
+  memory, and interception of the same allocator entry points (<code>malloc</code>,
+  <code>free</code>, <code>mmap</code>) to keep their shadow state synchronized with real
+  allocations. ASan's shadow layout and TSan's shadow layout are each
+  designed assuming they are the <em>only</em> sanitizer instrumenting the binary;
+  running both means two independent runtimes racing to intercept the same
+  allocator and reserve overlapping address ranges, which is why the
+  toolchains refuse the combination outright rather than silently producing
+  wrong shadow state.</li>
+<li><strong>This is also why the CI matrix in Module 6 runs <em>jobs</em>, not one universal
+  build</strong> — a real pipeline needs a normal build (fast, for day-to-day
+  correctness), an ASan+UBSan build (memory/language-rule safety), and a
+  separate TSan build (data-race detection), because "maximum instrumentation
+  in one binary" is not an available point on the trade-off curve; the
+  underlying shadow-memory mechanisms are mutually exclusive by design, not
+  just by convention.</li>
+<li><strong>The <code>-&gt; Structural only</code> line for the fuzzer isn't a cop-out — it names a
+  real dependency this project's host build cannot satisfy.</strong> <code>libFuzzer</code>
+  requires <code>-fsanitize=fuzzer</code>, which needs Clang's fuzzer runtime linked in;
+  a host without that runtime (or a from-scratch GCC-only toolchain) simply
+  can't produce that binary, which is exactly the same class of tooling
+  dependency Module 4 flagged when contrasting host-only builds against a
+  CI image built specifically to include the sanitizer/fuzzer runtimes.</li>
+</ul>
 <h2 id="stretch-goals">Stretch goals<a class="headerlink" href="#stretch-goals" title="Permanent link">&para;</a></h2>
 <ul>
 <li>Add a checksum byte to the message format (as suggested in module 04's

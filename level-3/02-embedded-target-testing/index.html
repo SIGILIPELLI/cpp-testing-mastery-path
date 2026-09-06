@@ -1575,6 +1575,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-host-testing-of-embedded-code-is-not-cheating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why host testing of embedded code is not "cheating"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2305,6 +2316,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-why-host-testing-of-embedded-code-is-not-cheating" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: why host testing of embedded code is not "cheating"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2584,6 +2606,36 @@ the host/target split rather than to unit-level fakes.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-why-host-testing-of-embedded-code-is-not-cheating">How It Actually Works: why host testing of embedded code is not "cheating"<a class="headerlink" href="#how-it-actually-works-why-host-testing-of-embedded-code-is-not-cheating" title="Permanent link">&para;</a></h2>
+<p>The host/target split rests on a real fact about compilation, not a
+convenience shortcut.</p>
+<ul>
+<li><strong>Host and target builds share a frontend but differ in the backend.</strong> GCC
+  and Clang compile your C/C++ source through the same language-level parsing
+  and most middle-end optimization passes regardless of target — a
+  parsing/state-machine bug is a bug in the AST-level logic, and that logic
+  is identical whether the backend later emits x86-64 or ARM Cortex-M
+  instructions. This is precisely why "pure logic" tests are valid on host:
+  the compiler pass that could introduce a target-specific difference (
+  instruction selection, register allocation, calling convention) happens
+  <em>after</em> the pass that would expose a logic bug.</li>
+<li><strong>A register-access wrapper crosses that boundary because it targets
+  memory-mapped I/O, which the host has none of.</strong> <code>*(volatile uint32_t*)0x4001000</code> on
+  a microcontroller reads a real peripheral register wired to hardware
+  state; on your host machine that address is either unmapped (instant
+  segfault) or aliases unrelated process memory — there is no equivalent
+  hardware behind it, so no host test can validate what the peripheral
+  actually does, only that your code issued the correctly-shaped access.</li>
+<li><strong>Timing-dependent behavior is inherently a property of the real clock and
+  real interrupt controller, not of your compiled instructions.</strong> An
+  interrupt latency bug depends on the target's actual clock frequency,
+  cache/flash wait states, and NVIC priority hardware — none of which a host
+  process's OS-scheduled threads can reproduce, because host "concurrency" is
+  scheduled by a general-purpose OS scheduler with millisecond-granularity
+  guarantees, not a deterministic microsecond-granularity interrupt
+  controller. This is exactly why such tests can only be trusted on-target
+  or on a cycle-accurate HIL rig (Module 3), never inferred from a host run.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Take the <code>frame_parse</code> function and add a checksum field (a one-byte XOR

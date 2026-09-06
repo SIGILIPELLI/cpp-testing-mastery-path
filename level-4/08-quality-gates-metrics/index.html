@@ -2119,6 +2119,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-it-actually-works-computing-a-coverage-delta-on-changed-lines-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: computing a coverage delta on changed lines only
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#exercise" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2298,6 +2309,17 @@
     <span class="md-ellipsis">
       
         Cheat sheet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-actually-works-computing-a-coverage-delta-on-changed-lines-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Actually Works: computing a coverage delta on changed lines only
       
     </span>
   </a>
@@ -2557,6 +2579,39 @@ without re-touching branch protection settings each time.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="how-it-actually-works-computing-a-coverage-delta-on-changed-lines-only">How It Actually Works: computing a coverage <em>delta</em> on changed lines only<a class="headerlink" href="#how-it-actually-works-computing-a-coverage-delta-on-changed-lines-only" title="Permanent link">&para;</a></h2>
+<p>"Delta-on-changed-lines" coverage is a specific diff-plus-report intersection
+computation, and knowing the mechanism explains why it's more precise than a
+floor.</p>
+<ul>
+<li><strong>It starts from the same <code>.gcno</code>/<code>.gcda</code> per-line hit-count data from
+  Level 2 Module 6</strong> — nothing about how coverage is <em>measured</em> changes.
+  What changes is what's <em>reported</em>: instead of reducing the whole report to
+  one aggregate percentage, the gate takes the unified diff of the PR (<code>git
+  diff --unified=0 main...HEAD</code>, which reports exactly which line numbers in
+  which files were added or modified) and intersects that set of line
+  numbers with the coverage report's per-line hit counts, restricted to just
+  those files.</li>
+<li><strong>This intersection is why a delta gate resists the "assertion-free test"
+  gaming trap better than a floor, but not perfectly.</strong> A floor gate only
+  cares about the aggregate ratio, so padding coverage anywhere in the
+  codebase (including old, easy-to-executed-but-never-asserted code) can
+  satisfy it. A delta gate restricts the denominator to lines the PR itself
+  touched, so gaming it means specifically executing (with or without real
+  assertions) the new/changed lines — a narrower and more visible target for
+  review, though still not proof the new lines are <em>correctly</em> tested, only
+  that they executed.</li>
+<li><strong>Rolling multiple blocking checks into one <code>merge-gate</code> job is a
+  dependency-graph trick in the CI system, not a policy simplification
+  alone.</strong> The <code>merge-gate</code> job declares a dependency on each real check job
+  (unit tests, sanitizers, static analysis) and does nothing itself but
+  succeed if all its dependencies succeeded; branch protection then only
+  needs to require that one job. This means adding or removing an underlying
+  check never requires touching the branch-protection configuration — only
+  the <code>merge-gate</code> job's own dependency list — which is the mechanical
+  reason it stays "one clear signal" even as the individual checks evolve
+  underneath it.</li>
+</ul>
 <h2 id="exercise">Exercise<a class="headerlink" href="#exercise" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Adapt the <code>quality_gate.py</code> script to read real coverage output (from
