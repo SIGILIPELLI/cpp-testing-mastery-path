@@ -1,3 +1,7 @@
+---
+description: "Integration Testing Strategies — Unit tests prove each component does what its author intended. Integration tests prove the components agree with each…"
+---
+
 # 01 · Integration Testing Strategies
 
 Unit tests prove each component does what its author intended. Integration

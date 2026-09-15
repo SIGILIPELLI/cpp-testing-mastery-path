@@ -1,3 +1,7 @@
+---
+description: "Unit Testing with GoogleTest — GoogleTest (gtest) is the most widely used C++ unit testing framework. It gives you test registration, a rich assertion…"
+---
+
 # 07 · Unit Testing with GoogleTest
 
 GoogleTest (gtest) is the most widely used C++ unit testing framework. It gives

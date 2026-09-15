@@ -1,3 +1,7 @@
+---
+description: "Static Analysis — Every technique so far has been dynamic: it finds bugs on code paths your tests actually execute. Static analysis reads the source…"
+---
+
 # 09 · Static Analysis
 
 Every technique so far has been dynamic: it finds bugs on code paths your tests

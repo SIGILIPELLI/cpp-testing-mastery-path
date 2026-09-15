@@ -1,3 +1,7 @@
+---
+description: "Test Builds & Running Suites — You now have tests. This module is about running them well: organizing test targets so a growing suite stays navigable…"
+---
+
 # 09 · Test Builds & Running Suites
 
 You now have tests. This module is about running them well: organizing test

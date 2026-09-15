@@ -1,3 +1,7 @@
+---
+description: "Performance & Benchmark Testing — Correctness tests answer 'does it give the right answer.' Benchmarks answer 'does it give the right answer fast enough…"
+---
+
 # 07 · Performance & Benchmark Testing
 
 Correctness tests answer "does it give the right answer." Benchmarks answer

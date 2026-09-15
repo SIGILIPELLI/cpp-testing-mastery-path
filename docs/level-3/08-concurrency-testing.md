@@ -1,3 +1,7 @@
+---
+description: "Concurrency Testing — A data race can pass every functional test, every code review, and run correctly ten thousand times in a row on a developer's laptop…"
+---
+
 # 08 · Concurrency Testing
 
 A data race can pass every functional test, every code review, and run

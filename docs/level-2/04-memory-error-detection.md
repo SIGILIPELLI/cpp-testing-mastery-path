@@ -1,3 +1,7 @@
+---
+description: "Memory Error Detection — A passing test suite proves your assertions held. It does not prove the program stayed inside its own memory. C and C++ will…"
+---
+
 # 04 · Memory Error Detection
 
 A passing test suite proves your assertions held. It does not prove the program

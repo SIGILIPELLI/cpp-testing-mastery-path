@@ -1,3 +1,7 @@
+---
+description: "Code Coverage (gcov/lcov) — Coverage answers one question: which lines did the test suite execute? That is useful and it is narrow. Coverage cannot tell…"
+---
+
 # 06 · Code Coverage (gcov/lcov)
 
 Coverage answers one question: which lines did the test suite execute? That is

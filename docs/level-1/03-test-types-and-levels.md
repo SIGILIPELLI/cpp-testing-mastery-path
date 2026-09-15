@@ -1,3 +1,7 @@
+---
+description: "Test Types & Levels — 'We tested it' is not a useful sentence. Which tests, at which level, of which type? This module gives you the vocabulary to say…"
+---
+
 # 03 · Test Types & Levels
 
 "We tested it" is not a useful sentence. *Which* tests, at *which* level, of

@@ -1,3 +1,7 @@
+---
+description: "Capstone — Production-Grade Test Infrastructure — This capstone assembles the entire path into one coherent deliverable: a small embedded-style…"
+---
+
 # 10 · Capstone — Production-Grade Test Infrastructure
 
 This capstone assembles the entire path into one coherent deliverable: a

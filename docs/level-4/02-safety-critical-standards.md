@@ -1,3 +1,7 @@
+---
+description: "Safety-Critical Testing Standards — MISRA C/C++, DO-178C, and ISO 26262 are not testing frameworks — they're process and coding standards that dictate…"
+---
+
 # 02 · Safety-Critical Testing Standards
 
 MISRA C/C++, DO-178C, and ISO 26262 are not testing frameworks — they're

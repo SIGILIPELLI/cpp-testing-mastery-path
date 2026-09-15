@@ -1,3 +1,7 @@
+---
+description: "CI/CD for C/C++ Test Suites — Every technique from Levels 1-3 — unit tests, sanitizers, coverage, static analysis, fuzzing, integration tests — only…"
+---
+
 # 06 · CI/CD for C/C++ Test Suites
 
 Every technique from Levels 1-3 — unit tests, sanitizers, coverage, static

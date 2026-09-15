@@ -1,3 +1,7 @@
+---
+description: "Building an In-House C/C++ Test Framework — GoogleTest and CMocka (Levels 1-2) cover the overwhelming majority of projects. The remaining minority — a…"
+---
+
 # 09 · Building an In-House C/C++ Test Framework
 
 GoogleTest and CMocka (Levels 1-2) cover the overwhelming majority of

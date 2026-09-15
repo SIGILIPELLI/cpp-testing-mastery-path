@@ -1,3 +1,7 @@
+---
+description: "Hardware-in-the-Loop Basics — Host tests (module 01-02) prove your logic is correct assuming the hardware behaves the way your fakes say it does. A…"
+---
+
 # 03 · Hardware-in-the-Loop Basics
 
 Host tests (module 01-02) prove your logic is correct assuming the hardware

@@ -1,3 +1,7 @@
+---
+description: "Testing C Code with CMocka Advanced — C has no virtual functions, so the mocking approach from Module 2 does not transfer. CMocka solves the problem…"
+---
+
 # 03 · Testing C Code with CMocka Advanced
 
 C has no virtual functions, so the mocking approach from Module 2 does not

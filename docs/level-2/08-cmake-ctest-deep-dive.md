@@ -1,3 +1,7 @@
+---
+description: "CMake/CTest Deep Dive — Level 1 used CMake as a build script that happened to produce a test binary. That stops scaling around the point you want a…"
+---
+
 # 08 · CMake/CTest Deep Dive
 
 Level 1 used CMake as a build script that happened to produce a test binary.

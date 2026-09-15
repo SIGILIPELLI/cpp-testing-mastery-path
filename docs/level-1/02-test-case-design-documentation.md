@@ -1,3 +1,7 @@
+---
+description: "Test Case Design & Documentation — A test that lives only in your head is not a test — it's a memory. This module is about turning intent into artifacts…"
+---
+
 # 02 · Test Case Design & Documentation
 
 A test that lives only in your head is not a test — it's a memory. This module

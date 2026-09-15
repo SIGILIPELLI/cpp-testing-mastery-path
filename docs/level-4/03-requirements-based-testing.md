@@ -1,3 +1,7 @@
+---
+description: "Requirements-Based Testing & Traceability — Every prior module in this path starts from 'here is some code, let's test it.' Requirements-based testing…"
+---
+
 # 03 · Requirements-Based Testing & Traceability
 
 Every prior module in this path starts from "here is some code, let's test

@@ -1,3 +1,7 @@
+---
+description: "Cross-Compilation Test Strategies — Level 3 module 02 split embedded code into host-testable logic and target-only hardware access. This module goes one…"
+---
+
 # 06 · Cross-Compilation Test Strategies
 
 Level 3 module 02 split embedded code into host-testable logic and

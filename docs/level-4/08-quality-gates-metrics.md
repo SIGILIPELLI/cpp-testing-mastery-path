@@ -1,3 +1,7 @@
+---
+description: "Quality Gates & Metrics — Every technique in this path produces a number: coverage percentage, static analysis finding count, flake rate, mean time to fix…"
+---
+
 # 08 · Quality Gates & Metrics
 
 Every technique in this path produces a number: coverage percentage,

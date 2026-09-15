@@ -1,3 +1,7 @@
+---
+description: "Simulation & Emulation (QEMU-based Test Rigs) — Module 06 introduced QEMU as a middle ground between host testing and full hardware-in-the-loop (Level 3…"
+---
+
 # 07 · Simulation & Emulation (QEMU-based Test Rigs)
 
 Module 06 introduced QEMU as a middle ground between host testing and full

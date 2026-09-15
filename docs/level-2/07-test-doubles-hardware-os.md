@@ -1,3 +1,7 @@
+---
+description: "Test Doubles for Hardware/OS — Embedded and systems code is full of things a unit test cannot have: a temperature register at address 0x40, a socket, the…"
+---
+
 # 07 · Test Doubles for Hardware/OS
 
 Embedded and systems code is full of things a unit test cannot have: a

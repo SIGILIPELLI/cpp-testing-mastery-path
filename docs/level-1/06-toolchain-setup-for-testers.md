@@ -1,3 +1,7 @@
+---
+description: "Toolchain Setup for Testers — From here on, this course writes code. This module gets a working C/C++ build and test environment onto your machine, and …"
+---
+
 # 06 · Toolchain Setup for Testers
 
 From here on, this course writes code. This module gets a working C/C++ build

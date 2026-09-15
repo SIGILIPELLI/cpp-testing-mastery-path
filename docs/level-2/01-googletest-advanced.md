@@ -1,3 +1,7 @@
+---
+description: "GoogleTest Advanced — Level 1 covered TEST, EXPECT_EQ and fixtures — enough to test a calculator. Real suites hit walls that basic assertions don't solve…"
+---
+
 # 01 · GoogleTest Advanced
 
 Level 1 covered `TEST`, `EXPECT_EQ` and fixtures — enough to test a calculator.

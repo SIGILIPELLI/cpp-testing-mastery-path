@@ -1,3 +1,7 @@
+---
+description: "Embedded Target Testing — Most of the code in an embedded project is not embedded-specific — it's parsing, state machines, protocol framing, math. The…"
+---
+
 # 02 · Embedded Target Testing
 
 Most of the code in an embedded project is not embedded-specific — it's

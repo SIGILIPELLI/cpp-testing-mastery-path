@@ -1,3 +1,7 @@
+---
+description: "Formal Methods & Static Verification Basics — Every technique so far in this path — unit tests, property tests, fuzzing — shares one structural limit…"
+---
+
 # 04 · Formal Methods & Static Verification Basics
 
 Every technique so far in this path — unit tests, property tests, fuzzing —

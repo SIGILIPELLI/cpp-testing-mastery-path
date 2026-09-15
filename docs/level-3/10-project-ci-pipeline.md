@@ -1,3 +1,7 @@
+---
+description: "Project — CI Pipeline with Sanitizers, Coverage and Fuzzing — This capstone assembles every technique from Level 3 into one real, buildable project with a…"
+---
+
 # 10 · Project — CI Pipeline with Sanitizers, Coverage and Fuzzing
 
 This capstone assembles every technique from Level 3 into one real,

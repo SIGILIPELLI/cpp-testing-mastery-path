@@ -1,3 +1,7 @@
+---
+description: "Property-Based Testing — Example-based tests (everything through Level 2) assert f(specific_input) == specific_output. Property-based testing asserts…"
+---
+
 # 05 · Property-Based Testing
 
 Example-based tests (everything through Level 2) assert `f(specific_input) ==

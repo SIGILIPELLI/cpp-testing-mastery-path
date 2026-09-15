@@ -1,3 +1,7 @@
+---
+description: "Undefined Behavior & UBSan — Undefined behaviour is the part of C and C++ where the standard stops making promises. It is not 'the program crashes' and…"
+---
+
 # 05 · Undefined Behavior & UBSan
 
 Undefined behaviour is the part of C and C++ where the standard stops making

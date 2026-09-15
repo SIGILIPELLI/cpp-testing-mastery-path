@@ -1,3 +1,7 @@
+---
+description: "Manual Testing in Practice — Exhaustive testing is impossible (Module 1, principle 2). A single int parameter has 4,294,967,296 possible values; a…"
+---
+
 # 05 · Manual Testing in Practice
 
 Exhaustive testing is impossible (Module 1, principle 2). A single `int`

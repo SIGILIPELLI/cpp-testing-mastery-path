@@ -1,3 +1,7 @@
+---
+description: "Test Architecture for Large Codebases — Everything so far in this path — unit tests, fixtures, doubles, sanitizers, CI — works cleanly at the scale of one…"
+---
+
 # 01 · Test Architecture for Large Codebases
 
 Everything so far in this path — unit tests, fixtures, doubles, sanitizers,

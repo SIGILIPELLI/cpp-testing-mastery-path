@@ -1,3 +1,7 @@
+---
+description: "Mocking with GoogleMock — A unit test should fail for one reason: the unit is wrong. That breaks down as soon as the unit talks to a database, a socket…"
+---
+
 # 02 · Mocking with GoogleMock
 
 A unit test should fail for one reason: the unit is wrong. That breaks down as

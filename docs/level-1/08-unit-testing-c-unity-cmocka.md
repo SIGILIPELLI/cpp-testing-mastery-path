@@ -1,3 +1,7 @@
+---
+description: "Unit Testing C with Unity/CMocka — GoogleTest is C++ — it uses classes, templates, and exceptions. Plenty of code you'll test is plain C, sometimes…"
+---
+
 # 08 · Unit Testing C with Unity/CMocka
 
 GoogleTest is C++ — it uses classes, templates, and exceptions. Plenty of code

@@ -1,3 +1,7 @@
+---
+description: "Fuzz Testing — Unit tests check the inputs you thought of. A fuzzer checks the inputs you didn't — by mutating bytes, guided by code coverage, until it…"
+---
+
 # 04 · Fuzz Testing
 
 Unit tests check the inputs you thought of. A fuzzer checks the inputs you

@@ -1,3 +1,7 @@
+---
+description: "Certification Evidence & Test Reporting — Passing tests are necessary but not sufficient for certification under DO-178C, ISO 26262, or similar regimes…"
+---
+
 # 05 · Certification Evidence & Test Reporting
 
 Passing tests are necessary but not sufficient for certification under

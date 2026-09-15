@@ -1,3 +1,7 @@
+---
+description: "Project — Test Plan & GoogleTest Suite — This project ties Level 1 together. You'll take a small C++ library, write a manual test plan for it using the…"
+---
+
 # 10 · Project — Test Plan & GoogleTest Suite
 
 This project ties Level 1 together. You'll take a small C++ library, write a

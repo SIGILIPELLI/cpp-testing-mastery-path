@@ -1,3 +1,7 @@
+---
+description: "Legacy Code: Getting Untestable Code Under Test — 'Legacy code' here means, per Michael Feathers' definition, code without tests — regardless of age. The…"
+---
+
 # 09 · Legacy Code: Getting Untestable Code Under Test
 
 "Legacy code" here means, per Michael Feathers' definition, code without
