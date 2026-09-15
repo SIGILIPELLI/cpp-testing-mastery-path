@@ -313,6 +313,10 @@ output.
   needs to produce more relevant values directly, not that the filter needs
   loosening.
 
+## 🔀 Related lessons on other tracks
+
+- [Python Testing — 05 · Property-Based Testing with Hypothesis](https://sigilipelli.github.io/python-testing-mastery-path/level-3/05-property-based-testing/)
+
 ## Exercise
 
 1. Write a round-trip property for the `frame_parse`/hypothetical

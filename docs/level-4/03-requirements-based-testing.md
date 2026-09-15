@@ -233,6 +233,11 @@ sources and computing a join.
   recomputed from the current state of both sets on every run rather than
   being an artifact someone has to remember to update by hand.
 
+## 🔀 Related lessons on other tracks
+
+- [Automotive Testing — 08 · Requirements-Based Test Traceability](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/08-requirements-based-traceability/)
+- [Python Testing — 05 · Property-Based Testing with Hypothesis](https://sigilipelli.github.io/python-testing-mastery-path/level-3/05-property-based-testing/)
+
 ## Exercise
 
 1. Write three requirements (`REQ-...` style) for the `BoundedStack` from

@@ -301,6 +301,11 @@ actually being linked and executed at each stage.
   instead of the implementation, which is a documentation distinction, not an
   execution one.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 03 · Test Types & Levels](https://sigilipelli.github.io/java-testing-mastery-path/level-1/03-test-types-levels/)
+- [Python Testing — 03 · Test Types & Levels](https://sigilipelli.github.io/python-testing-mastery-path/level-1/03-test-types-levels/)
+
 ## Exercise
 
 You are handed a small C++ library, `libconfig`, which:

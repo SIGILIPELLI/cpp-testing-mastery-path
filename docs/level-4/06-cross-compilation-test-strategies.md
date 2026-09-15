@@ -234,6 +234,10 @@ representation.
   the actual cross-compiled binary — not a host build's layout — is the only
   way to verify the wire format matches what you intended.
 
+## 🔀 Related lessons on other tracks
+
+- [Embedded Linux — 06 · Cross-Compilation](https://sigilipelli.github.io/embedded-linux-mastery-path/level-1/06-cross-compilation/)
+
 ## Exercise
 
 1. Take `pack_two_fields` from section 3, compile and run it as shown, then

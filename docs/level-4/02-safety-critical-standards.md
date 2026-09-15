@@ -200,6 +200,10 @@ additional evidence.**
   qualification burden tracks how directly the tool's own correctness
   becomes your code's correctness.
 
+## 🔀 Related lessons on other tracks
+
+- [Automotive Testing — 04 · Functional Safety Testing (ISO 26262)](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/04-functional-safety-testing/)
+
 ## Exercise
 
 1. Take one function from an earlier module in this path (e.g. `frame_parse`

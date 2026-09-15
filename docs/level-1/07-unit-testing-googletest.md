@@ -573,6 +573,10 @@ static registration, and you can trace every step.
    the same construct/`SetUp`/body/`TearDown`/destruct sequence from point 3
    naturally runs your setup and teardown — there's no separate hook mechanism.
 
+## 🔀 Related lessons on other tracks
+
+- [Embedded — Debugging & Unit Testing](https://sigilipelli.github.io/embedded-mastery-path/level-2/09-debugging-unit-testing/)
+
 ## Exercise
 
 Extend the project from Module 6 with a real GoogleTest suite.

@@ -320,6 +320,11 @@ GoogleTest's mechanism (Level 1 Module 7) and what it does *not* guarantee.
   framework" is, at its irreducible core, nothing more than: run some
   functions, count what failed, return non-zero if anything did.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 08 · Building an In-House Test Framework](https://sigilipelli.github.io/java-testing-mastery-path/level-4/08-in-house-test-framework/)
+- [Python Testing — 08 · Building an In-House Test Framework](https://sigilipelli.github.io/python-testing-mastery-path/level-4/08-inhouse-framework/)
+
 ## Exercise
 
 1. Build and run `example_tests.c` exactly as shown, confirm the same

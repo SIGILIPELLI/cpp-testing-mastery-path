@@ -414,6 +414,11 @@ table — each one corresponds to a concrete representation limit.
   mathematically expected value, so any test that does exact equality on a
   float boundary needs a tolerance instead of `==`.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 05 · Manual Testing in Practice](https://sigilipelli.github.io/java-testing-mastery-path/level-1/05-manual-testing-practice/)
+- [Python Testing — 05 · Manual Testing in Practice](https://sigilipelli.github.io/python-testing-mastery-path/level-1/05-manual-testing-practice/)
+
 ## Exercise
 
 You are testing this C function:

@@ -262,6 +262,11 @@ before you meet the macros.
    from here on (fixtures, mocks, sanitizers, coverage) is instrumentation
    layered around this same exit-code contract.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 01 · What Is Software Testing?](https://sigilipelli.github.io/java-testing-mastery-path/level-1/01-what-is-software-testing/)
+- [Python Testing — 01 · What Is Software Testing?](https://sigilipelli.github.io/python-testing-mastery-path/level-1/01-what-is-software-testing/)
+
 ## Exercise
 
 No code for this one — it's an analysis exercise, and the reasoning is the

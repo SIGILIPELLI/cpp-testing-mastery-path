@@ -268,6 +268,12 @@ specific hardware and compiler behaviors.
   load — statistics across repetitions is how you separate "the algorithm is
   slower" from "a neighboring process stole a timeslice."
 
+## 🔀 Related lessons on other tracks
+
+- [Azure — 06 · Performance Engineering & Load Testing](https://sigilipelli.github.io/azure-mastery-path/level-4/06-performance-load-testing/)
+- [Java Testing — 05 · Performance Testing Basics (JMeter)](https://sigilipelli.github.io/java-testing-mastery-path/level-3/05-performance-testing-jmeter/)
+- [Python Testing — 06 · Performance Testing with Locust](https://sigilipelli.github.io/python-testing-mastery-path/level-3/06-performance-testing/)
+
 ## Exercise
 
 1. Write a `BENCHMARK_F` fixture benchmarking three implementations of

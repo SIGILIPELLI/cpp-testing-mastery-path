@@ -380,3 +380,7 @@ piece of software the way a real safety-adjacent or high-reliability team
 would — from requirement to running, sanitizer-checked code to a CI gate
 that would actually block a regression. That is the entire arc of this
 path, and it's yours to reuse on real work from here.
+
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 10 · Capstone — Production-Grade Test Framework](https://sigilipelli.github.io/java-testing-mastery-path/level-4/10-capstone-test-framework/)

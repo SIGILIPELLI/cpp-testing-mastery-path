@@ -653,6 +653,10 @@ in the same form, so they do it differently — and less automatically.
   code needs a function-pointer or preprocessor seam that C++ virtual
   dispatch gets for free (see Level 2's GoogleMock module for that contrast).
 
+## 🔀 Related lessons on other tracks
+
+- [Embedded — Debugging & Unit Testing](https://sigilipelli.github.io/embedded-mastery-path/level-2/09-debugging-unit-testing/)
+
 ## Exercise
 
 Build a complete C unit test suite for a ring buffer.

@@ -337,6 +337,11 @@ naming explicitly.
   why later modules reach for ASan/Valgrind to make such corruption
   deterministic and location-precise instead of address-dependent.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 04 · Defect Lifecycle & Bug Reporting](https://sigilipelli.github.io/java-testing-mastery-path/level-1/04-defect-lifecycle/)
+- [Python Testing — 04 · Defect Lifecycle & Bug Reporting](https://sigilipelli.github.io/python-testing-mastery-path/level-1/04-defect-lifecycle/)
+
 ## Exercise
 
 Return to the `average()` function from Module 1's exercise:

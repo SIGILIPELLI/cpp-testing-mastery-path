@@ -390,3 +390,9 @@ own bookkeeping, not re-inspecting your code:
   covers sanitizers properly, but seeing a clean run now is a good baseline.
 
 Completing this project means you're ready for **Level 2 · Intermediate**.
+
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 10 · Project — Manual Test Plan + Automated Suite](https://sigilipelli.github.io/java-testing-mastery-path/level-1/10-project-test-plan-suite/)
+- [Python Testing — 10 · Project — Test Plan + Automated Suite](https://sigilipelli.github.io/python-testing-mastery-path/level-1/10-project-test-suite/)
+- [Automotive Testing — 10 · Project — HIL Test Plan for an ECU Feature](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/10-project-hil-test-plan/)

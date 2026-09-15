@@ -213,6 +213,11 @@ layer over CMake) all reduce to the same computation.
   OS processes (often on N separate machines) instead of one process running
   the whole array serially.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 01 · Test Architecture at Scale](https://sigilipelli.github.io/java-testing-mastery-path/level-4/01-test-architecture-at-scale/)
+- [Python Testing — 01 · Test Architecture at Scale](https://sigilipelli.github.io/python-testing-mastery-path/level-4/01-test-architecture/)
+
 ## Exercise
 
 1. Sketch a dependency graph (as a diagram or a nested list) for a

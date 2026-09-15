@@ -242,6 +242,12 @@ where C/C++ integer and comparison semantics actually break.
   without enumerating every input — this is the same idea code coverage tools
   (Level 2) measure directly instead of inferring by hand.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 02 · Test Case Design & Documentation](https://sigilipelli.github.io/java-testing-mastery-path/level-1/02-test-case-design/)
+- [Python Testing — 02 · Test Case Design & Documentation](https://sigilipelli.github.io/python-testing-mastery-path/level-1/02-test-case-design/)
+- [Automotive Testing — 08 · Test Case Design for ECUs](https://sigilipelli.github.io/automotive-testing-mastery-path/level-1/08-test-case-design-for-ecus/)
+
 ## Exercise
 
 Take this C function, which is intended to copy a source string into a

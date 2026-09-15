@@ -220,6 +220,10 @@ no OS underneath needs `qemu-system-*` and semihosting as covered above.
   from a genuine hardware response and exactly why it falls back to real
   HIL rather than "just needing more QEMU flags."
 
+## 🔀 Related lessons on other tracks
+
+- [Automotive Testing — 08 · Requirements-Based Test Traceability](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/08-requirements-based-traceability/)
+
 ## Exercise
 
 1. Sketch the semihosting-based test harness (section 2's shape) for one

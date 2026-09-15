@@ -295,6 +295,10 @@ test suite never reaches, and also what causes their false positives.
   findings a reviewer would otherwise act on — the fix isn't a smarter tool,
   it's curating which passes you trust enough to fail the build on.
 
+## 🔀 Related lessons on other tracks
+
+- [S32K Automotive — MISRA C & Static Analysis in Practice](https://sigilipelli.github.io/s32k-mastery-path/level-4/03-misra-static-analysis/)
+
 ## Exercise
 
 1. **Write `buggy.c`** from section 3 and reproduce the cppcheck output exactly.

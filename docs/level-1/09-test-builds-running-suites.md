@@ -493,6 +493,10 @@ Run this against any C/C++ project's test setup:
   `<testsuite><testcase>` elements — CI dashboards read that XML because it's
   a de facto standard, not because anything about the test execution changes.
 
+## 🔀 Related lessons on other tracks
+
+- [Automotive Testing — 07 · Regression Test Suites for Automotive Software](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/07-regression-test-suites/)
+
 ## Exercise
 
 Take the project you built across Modules 6–8 and turn it into a properly

@@ -260,6 +260,10 @@ modules — nothing about "being in CI" changes what a test binary does.
   surfaces as "job C++20/Clang red, job C++17/GCC green" rather than a single
   aggregated result.
 
+## 🔀 Related lessons on other tracks
+
+- [Automotive Testing — 07 · Regression Test Suites for Automotive Software](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/07-regression-test-suites/)
+
 ## Exercise
 
 1. Write a `ci.yml` for the Level 2 capstone (`instrumented/`) with separate

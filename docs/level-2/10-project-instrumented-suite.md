@@ -403,3 +403,9 @@ CI rather than picking the "best" one.
   unbounded `Top()`.
 - Run `cppcheck --enable=all` (not just `warning,style`) and note which extra
   findings are genuinely useful versus noise you'd suppress in a real project.
+
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 10 · Project — Manual Test Plan + Automated Suite](https://sigilipelli.github.io/java-testing-mastery-path/level-1/10-project-test-plan-suite/)
+- [Playwright — 10 · Project — POM Test Suite](https://sigilipelli.github.io/playwright-mastery-path/level-2/10-project-pom-suite/)
+- [Python Testing — 10 · Project — Test Plan + Automated Suite](https://sigilipelli.github.io/python-testing-mastery-path/level-1/10-project-test-suite/)

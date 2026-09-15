@@ -231,6 +231,12 @@ floor.
   reason it stays "one clear signal" even as the individual checks evolve
   underneath it.
 
+## 🔀 Related lessons on other tracks
+
+- [Java Testing — 05 · Test Metrics & Quality Gates](https://sigilipelli.github.io/java-testing-mastery-path/level-4/05-test-metrics-quality-gates/)
+- [Python Testing — 05 · Test Metrics & Quality Gates](https://sigilipelli.github.io/python-testing-mastery-path/level-4/05-test-metrics-quality-gates/)
+- [Pyspark — 07 · Data Quality Gates](https://sigilipelli.github.io/pyspark-mastery-path/level-4/07-data-quality-gates/)
+
 ## Exercise
 
 1. Adapt the `quality_gate.py` script to read real coverage output (from
