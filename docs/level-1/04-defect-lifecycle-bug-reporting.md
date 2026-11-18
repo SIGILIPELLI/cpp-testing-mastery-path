@@ -339,8 +339,8 @@ naming explicitly.
 
 ## 🔀 Related lessons on other tracks
 
-- [Java Testing — 04 · Defect Lifecycle & Bug Reporting](https://sigilipelli.github.io/java-testing-mastery-path/level-1/04-defect-lifecycle/)
-- [Python Testing — 04 · Defect Lifecycle & Bug Reporting](https://sigilipelli.github.io/python-testing-mastery-path/level-1/04-defect-lifecycle/)
+- [Java Testing — 04 · Defect Lifecycle & Bug Reporting](https://learnmasterypath.com/java-testing-mastery-path/level-1/04-defect-lifecycle/)
+- [Python Testing — 04 · Defect Lifecycle & Bug Reporting](https://learnmasterypath.com/python-testing-mastery-path/level-1/04-defect-lifecycle/)
 
 ## Exercise
 

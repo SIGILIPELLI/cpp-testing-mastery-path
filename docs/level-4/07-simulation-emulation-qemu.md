@@ -222,7 +222,7 @@ no OS underneath needs `qemu-system-*` and semihosting as covered above.
 
 ## 🔀 Related lessons on other tracks
 
-- [Automotive Testing — 08 · Requirements-Based Test Traceability](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/08-requirements-based-traceability/)
+- [Automotive Testing — 08 · Requirements-Based Test Traceability](https://learnmasterypath.com/automotive-testing-mastery-path/level-3/08-requirements-based-traceability/)
 
 ## Exercise
 

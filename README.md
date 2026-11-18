@@ -4,7 +4,7 @@ A free, structured, module-wise software testing program for C and C++ — manua
 QA fundamentals through automated unit testing, sanitizers, fuzzing and CI,
 entry level to master level, with a hands-on project at the end of each level.
 
-**Live site:** https://sigilipelli.github.io/cpp-testing-mastery-path/
+**Live site:** https://learnmasterypath.com/cpp-testing-mastery-path/
 
 ## Contents
 
@@ -26,7 +26,7 @@ python3 -m venv .venv
 
 ## Related
 
-- [C Mastery Path](https://sigilipelli.github.io/c-mastery-path/)
-- [C++ Mastery Path](https://sigilipelli.github.io/cpp-mastery-path/)
-- [Embedded Mastery Path](https://sigilipelli.github.io/embedded-mastery-path/)
-- [Python Mastery Path](https://sigilipelli.github.io/python-mastery-path/)
+- [C Mastery Path](https://learnmasterypath.com/c-mastery-path/)
+- [C++ Mastery Path](https://learnmasterypath.com/cpp-mastery-path/)
+- [Embedded Mastery Path](https://learnmasterypath.com/embedded-mastery-path/)
+- [Python Mastery Path](https://learnmasterypath.com/python-mastery-path/)

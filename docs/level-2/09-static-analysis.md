@@ -297,7 +297,7 @@ test suite never reaches, and also what causes their false positives.
 
 ## 🔀 Related lessons on other tracks
 
-- [S32K Automotive — MISRA C & Static Analysis in Practice](https://sigilipelli.github.io/s32k-mastery-path/level-4/03-misra-static-analysis/)
+- [S32K Automotive — MISRA C & Static Analysis in Practice](https://learnmasterypath.com/s32k-mastery-path/level-4/03-misra-static-analysis/)
 
 ## Exercise
 

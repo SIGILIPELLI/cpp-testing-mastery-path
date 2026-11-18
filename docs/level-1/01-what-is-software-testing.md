@@ -264,8 +264,8 @@ before you meet the macros.
 
 ## 🔀 Related lessons on other tracks
 
-- [Java Testing — 01 · What Is Software Testing?](https://sigilipelli.github.io/java-testing-mastery-path/level-1/01-what-is-software-testing/)
-- [Python Testing — 01 · What Is Software Testing?](https://sigilipelli.github.io/python-testing-mastery-path/level-1/01-what-is-software-testing/)
+- [Java Testing — 01 · What Is Software Testing?](https://learnmasterypath.com/java-testing-mastery-path/level-1/01-what-is-software-testing/)
+- [Python Testing — 01 · What Is Software Testing?](https://learnmasterypath.com/python-testing-mastery-path/level-1/01-what-is-software-testing/)
 
 ## Exercise
 

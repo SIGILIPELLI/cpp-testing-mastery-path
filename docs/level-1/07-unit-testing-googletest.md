@@ -575,7 +575,7 @@ static registration, and you can trace every step.
 
 ## 🔀 Related lessons on other tracks
 
-- [Embedded — Debugging & Unit Testing](https://sigilipelli.github.io/embedded-mastery-path/level-2/09-debugging-unit-testing/)
+- [Embedded — Debugging & Unit Testing](https://learnmasterypath.com/embedded-mastery-path/level-2/09-debugging-unit-testing/)
 
 ## Exercise
 

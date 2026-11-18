@@ -236,7 +236,7 @@ representation.
 
 ## 🔀 Related lessons on other tracks
 
-- [Embedded Linux — 06 · Cross-Compilation](https://sigilipelli.github.io/embedded-linux-mastery-path/level-1/06-cross-compilation/)
+- [Embedded Linux — 06 · Cross-Compilation](https://learnmasterypath.com/embedded-linux-mastery-path/level-1/06-cross-compilation/)
 
 ## Exercise
 

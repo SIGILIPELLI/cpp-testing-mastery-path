@@ -495,7 +495,7 @@ Run this against any C/C++ project's test setup:
 
 ## 🔀 Related lessons on other tracks
 
-- [Automotive Testing — 07 · Regression Test Suites for Automotive Software](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/07-regression-test-suites/)
+- [Automotive Testing — 07 · Regression Test Suites for Automotive Software](https://learnmasterypath.com/automotive-testing-mastery-path/level-3/07-regression-test-suites/)
 
 ## Exercise
 

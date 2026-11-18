@@ -416,8 +416,8 @@ table — each one corresponds to a concrete representation limit.
 
 ## 🔀 Related lessons on other tracks
 
-- [Java Testing — 05 · Manual Testing in Practice](https://sigilipelli.github.io/java-testing-mastery-path/level-1/05-manual-testing-practice/)
-- [Python Testing — 05 · Manual Testing in Practice](https://sigilipelli.github.io/python-testing-mastery-path/level-1/05-manual-testing-practice/)
+- [Java Testing — 05 · Manual Testing in Practice](https://learnmasterypath.com/java-testing-mastery-path/level-1/05-manual-testing-practice/)
+- [Python Testing — 05 · Manual Testing in Practice](https://learnmasterypath.com/python-testing-mastery-path/level-1/05-manual-testing-practice/)
 
 ## Exercise
 

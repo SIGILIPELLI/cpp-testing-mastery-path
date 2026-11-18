@@ -303,8 +303,8 @@ actually being linked and executed at each stage.
 
 ## 🔀 Related lessons on other tracks
 
-- [Java Testing — 03 · Test Types & Levels](https://sigilipelli.github.io/java-testing-mastery-path/level-1/03-test-types-levels/)
-- [Python Testing — 03 · Test Types & Levels](https://sigilipelli.github.io/python-testing-mastery-path/level-1/03-test-types-levels/)
+- [Java Testing — 03 · Test Types & Levels](https://learnmasterypath.com/java-testing-mastery-path/level-1/03-test-types-levels/)
+- [Python Testing — 03 · Test Types & Levels](https://learnmasterypath.com/python-testing-mastery-path/level-1/03-test-types-levels/)
 
 ## Exercise
 

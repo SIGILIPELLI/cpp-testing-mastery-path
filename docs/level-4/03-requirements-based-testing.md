@@ -235,8 +235,8 @@ sources and computing a join.
 
 ## 🔀 Related lessons on other tracks
 
-- [Automotive Testing — 08 · Requirements-Based Test Traceability](https://sigilipelli.github.io/automotive-testing-mastery-path/level-3/08-requirements-based-traceability/)
-- [Python Testing — 05 · Property-Based Testing with Hypothesis](https://sigilipelli.github.io/python-testing-mastery-path/level-3/05-property-based-testing/)
+- [Automotive Testing — 08 · Requirements-Based Test Traceability](https://learnmasterypath.com/automotive-testing-mastery-path/level-3/08-requirements-based-traceability/)
+- [Python Testing — 05 · Property-Based Testing with Hypothesis](https://learnmasterypath.com/python-testing-mastery-path/level-3/05-property-based-testing/)
 
 ## Exercise
 

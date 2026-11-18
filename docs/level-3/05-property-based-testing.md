@@ -315,7 +315,7 @@ output.
 
 ## 🔀 Related lessons on other tracks
 
-- [Python Testing — 05 · Property-Based Testing with Hypothesis](https://sigilipelli.github.io/python-testing-mastery-path/level-3/05-property-based-testing/)
+- [Python Testing — 05 · Property-Based Testing with Hypothesis](https://learnmasterypath.com/python-testing-mastery-path/level-3/05-property-based-testing/)
 
 ## Exercise
 

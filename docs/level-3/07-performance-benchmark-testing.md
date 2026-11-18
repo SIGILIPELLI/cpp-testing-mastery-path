@@ -270,9 +270,9 @@ specific hardware and compiler behaviors.
 
 ## 🔀 Related lessons on other tracks
 
-- [Azure — 06 · Performance Engineering & Load Testing](https://sigilipelli.github.io/azure-mastery-path/level-4/06-performance-load-testing/)
-- [Java Testing — 05 · Performance Testing Basics (JMeter)](https://sigilipelli.github.io/java-testing-mastery-path/level-3/05-performance-testing-jmeter/)
-- [Python Testing — 06 · Performance Testing with Locust](https://sigilipelli.github.io/python-testing-mastery-path/level-3/06-performance-testing/)
+- [Azure — 06 · Performance Engineering & Load Testing](https://learnmasterypath.com/azure-mastery-path/level-4/06-performance-load-testing/)
+- [Java Testing — 05 · Performance Testing Basics (JMeter)](https://learnmasterypath.com/java-testing-mastery-path/level-3/05-performance-testing-jmeter/)
+- [Python Testing — 06 · Performance Testing with Locust](https://learnmasterypath.com/python-testing-mastery-path/level-3/06-performance-testing/)
 
 ## Exercise
 

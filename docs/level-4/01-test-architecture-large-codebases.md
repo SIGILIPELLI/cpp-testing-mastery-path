@@ -215,8 +215,8 @@ layer over CMake) all reduce to the same computation.
 
 ## 🔀 Related lessons on other tracks
 
-- [Java Testing — 01 · Test Architecture at Scale](https://sigilipelli.github.io/java-testing-mastery-path/level-4/01-test-architecture-at-scale/)
-- [Python Testing — 01 · Test Architecture at Scale](https://sigilipelli.github.io/python-testing-mastery-path/level-4/01-test-architecture/)
+- [Java Testing — 01 · Test Architecture at Scale](https://learnmasterypath.com/java-testing-mastery-path/level-4/01-test-architecture-at-scale/)
+- [Python Testing — 01 · Test Architecture at Scale](https://learnmasterypath.com/python-testing-mastery-path/level-4/01-test-architecture/)
 
 ## Exercise
 
