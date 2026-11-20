@@ -1,5 +1,5 @@
 ---
-description: "Defect Lifecycle & Bug Reporting — Finding a bug is half the job. The other half is communicating it so precisely that a developer can reproduce and fix…"
+description: "Defect Lifecycle & Bug Reporting for C/C++ testers: write reproducible bug reports for crashes, memory errors and flaky builds, and track defects from open to verified."
 ---
 
 # 04 · Defect Lifecycle & Bug Reporting
