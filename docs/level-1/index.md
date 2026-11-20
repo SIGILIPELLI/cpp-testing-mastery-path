@@ -1,3 +1,7 @@
+---
+description: "Level 1 (Entry) of the free C/C++ Testing Mastery Path. Understand what software testing actually is, be able to write clear test cases and bug reports by…"
+---
+
 # Level 1 · Entry <span class="level-badge">Foundations</span>
 
 Goal: understand what software testing actually is, be able to write clear test

@@ -1,3 +1,7 @@
+---
+description: "Level 4 (Master) of the free C/C++ Testing Mastery Path: Test Architecture for Large C/C++ Codebases, Safety-Critical Testing Standards (MISRA, DO-178C, ISO…"
+---
+
 # Level 4 · Master
 
 ## Modules

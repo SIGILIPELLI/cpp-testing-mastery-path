@@ -1,3 +1,7 @@
+---
+description: "Level 3 (Advanced) of the free C/C++ Testing Mastery Path: Integration Testing Strategies, Embedded Target Testing, Hardware-in-the-Loop Basics, Fuzz…"
+---
+
 # Level 3 · Advanced
 
 ## Modules

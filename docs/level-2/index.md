@@ -1,3 +1,7 @@
+---
+description: "Level 2 (Intermediate) of the free C/C++ Testing Mastery Path: GoogleTest Advanced, Mocking with GoogleMock, Testing C Code with CMocka Advanced, Memory…"
+---
+
 # Level 2 · Intermediate
 
 ## Modules
