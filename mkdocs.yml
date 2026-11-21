@@ -53,9 +53,11 @@ markdown_extensions:
 extra_css:
   - stylesheets/extra.css
   - stylesheets/progress-tracker.css
+  - stylesheets/final-quiz.css
 
 extra_javascript:
   - javascripts/progress-tracker.js
+  - javascripts/final-quiz.js
 
 
 
@@ -127,3 +129,5 @@ nav:
       - "08 · Quality Gates & Metrics": level-4/08-quality-gates-metrics.md
       - "09 · Building an In-House C/C++ Test Framework": level-4/09-in-house-test-framework.md
       - "10 · Capstone — Production-Grade Test Infrastructure": level-4/10-capstone-project.md
+  - "🎯 Final Quiz": quiz.md
+
