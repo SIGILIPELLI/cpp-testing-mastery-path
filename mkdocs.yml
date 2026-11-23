@@ -83,8 +83,8 @@ not_in_nav: |
 
 nav:
   - Home: index.md
-  - "💼 Interview Questions": interview-questions.md
-  - "📋 Cheat Sheet": cheat-sheet.md
+  - Interview Questions: interview-questions.md
+  - Cheat Sheet: cheat-sheet.md
   - "Level 1 · Entry":
       - Overview: level-1/index.md
       - "01 · What Is Software Testing?": level-1/01-what-is-software-testing.md
@@ -133,5 +133,5 @@ nav:
       - "08 · Quality Gates & Metrics": level-4/08-quality-gates-metrics.md
       - "09 · Building an In-House C/C++ Test Framework": level-4/09-in-house-test-framework.md
       - "10 · Capstone — Production-Grade Test Infrastructure": level-4/10-capstone-project.md
-  - "🎯 Final Quiz": quiz.md
+  - Final Quiz: quiz.md
 
