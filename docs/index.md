@@ -33,7 +33,7 @@ those bugs.
   traceability matrices) you can copy straight into your own project.
 - The automation modules have runnable C/C++ code — copy them into local files
   and build them with `g++`/`clang++` and CMake.
-- Each level ends with a project that combines everything learned in that level.
+- Levels 1–3 each end with a project that combines everything learned in that level, and Level 4 ends with the course capstone.
 - Use the search bar (top of the page) to jump straight to a topic.
 
 Start here → [Level 1 · Entry](level-1/index.md)
